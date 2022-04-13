@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 
 const schema = mongoose.Schema;
 
@@ -9,7 +10,9 @@ const User = new schema({
     },
     email: {
         type: String,
-        required: true
+        unique:true,
+        trim:true,
+        required: true,
     },
     mobile: {
         type: Number,
@@ -35,14 +38,34 @@ const User = new schema({
         default: false
     },
     buyHistory: {
-        type: []
+        type: [],
+        default:[]
     },
     sellHistory: {
-        type: []
+        type: [],
+        default:[]
+
     },
     favouriteProdcts: {
-        type: []
+        type: [],
+        default:[]
     },
+    tokens:[{
+        token:{
+            type:String,
+            required:true
+        }
+    }]
 }, { timestamps: true })
+
+
+ User.methods.generateAuthToken = async function() {
+     const user = this
+     const token= jwt.sign({_id:user._id.toString()}, 'dontcomehere')
+     user.tokens = user.tokens.concat({token}) 
+     await user.save()
+     return token;
+ }
+
 
 module.exports = mongoose.model('Users', User)
