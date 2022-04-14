@@ -1,59 +1,70 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
-let Product = new schema(
+let Product = new schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  basePrice: {
+    type: Number,
+    required: true,
+  },
+  status: {
+    type: String,
+    default: "upcoming",
+  },
+  images: {
+    type: [],
+    required: true,
+  },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+  sellerId: {
+    type: String,
+    required: true,
+  },
+  buyerId: {
+    type: String,
+    default: null,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  comments: {
+    type: [],
+    default: [],
+  },
+  bidDetails: [
     {
-        name: {
-            type: String,
-            required: true
-        },
-        description: {
-            type: String,
-            required: true
-        },
-        category: {
-            type: String,
-            required: true
-        },
-        base_price: {
-            type: Number,
-            required: true
-        },
-        status: {
-            type: String,
-            default: "upcoming"
-        },
-        images: {
-            type: [],
-            required: true
-        },
-        start_date: {
-            type: Date,
-            required: true
-        },
-        end_date: {
-            type: Date,
-            required: true
-        },
-        seller_id: {
-            type: String,
-            required: true
-        },
-        buyer_id: {
-            type: String,
-            default: null
-        },
-        comments: {
-            type: [],
-            default: []
-        },
-        bid_history: {
-            type: [],
-            default: []
-        },
+      userId: {
+        type: String,
+      },
+      bidAmount: {
+        type: Number,
+      },
+      timeStamp: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+});
 
-    }
-)
-
-module.exports = mongoose.model('Product', Product)
+module.exports = mongoose.model("Product", Product);
