@@ -18,10 +18,9 @@ router.get('/',(req,res)=>{
 
 // get product by id
 router.get('/:id', (req, res) => {
-    console.log("Hello product by id")
     Product.findById(req.params.id, (error, data) => {
         if (error) {
-            console.log("product by id :", error);
+            // console.log("product by id :", error);
             res.send("Error in getting product by id");
         }
         else {

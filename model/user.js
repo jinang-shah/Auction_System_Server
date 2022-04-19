@@ -27,7 +27,7 @@ const User = new schema(
       type: {},
       required: true,
     },
-    ducuments: {
+    documents: {
       type: [],
     },
     productBill: {
@@ -56,7 +56,7 @@ const User = new schema(
     favouriteProdcts: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: "Product", 
       },
     ],
     notifications: {
