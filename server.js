@@ -5,10 +5,9 @@ const router = require("./route");
 require("dotenv").config();
 
 // const MONGO_URI = process.env.MONGO_URI
-const MONGO_URI =
-  "mongodb+srv://admin123:InpaPNEXVJ5sOtlw@cluster0.opxsk.mongodb.net/Auction_System?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI;
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 
 mongoose
   .connect(MONGO_URI)
