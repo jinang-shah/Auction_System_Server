@@ -7,8 +7,10 @@ const io = require("socket.io")(server, { cors: { origin: "*" } });
 const cors = require('cors')
 const mongoose = require('mongoose')
 const Product = require('./modules/api/routes/product')
+const Product_Model = require('./model/product')
 const Users = require('./modules/api/routes/user')
-const routes = require('./route')
+const routes = require('./route');
+const getUserName = require("./modules/api/utils/queries");
 require('dotenv').config()
 
 
@@ -29,9 +31,50 @@ mongoose
 app.use(cors())
 app.use(express.json())
 
-io.on("connection", socket => {
-    console.log("new User connected")
-    io.emit("hello","world how are you")
+io.on("connection", (user) => {
+
+  console.log("new user connected")
+
+  user.on("userdata", async(data) => {
+    
+    console.log("Room : ",data.productId)
+    console.log("User : ",data.userId)
+    user.id=data.userId;
+    user.productId = data.productId
+    
+    user.join(user.productId)
+  });
+
+  user.on("sendComment",async (data) => {
+
+    const productId = data.productId
+
+    commentData = {
+      data:data.data,
+      timeStamp:data.timeStamp,
+      senderId:user.id
+    }
+
+    console.log("comment Data :",commentData)
+
+    await Product_Model.findByIdAndUpdate(productId,{
+      $push:{comments:commentData}
+    }).catch((err)=>{
+      console.log("error in uploading comment")
+    })
+    
+    const updatedData = {
+      timeStamp:commentData.timeStamp,
+      data:commentData.data,
+      name:await getUserName(user.id),
+      productId:user.productId
+    }
+
+    console.log("updatedData: ",updatedData)
+
+    io.emit('receiveComment',updatedData)
+    console.log("done");
+})
 });
 
 
