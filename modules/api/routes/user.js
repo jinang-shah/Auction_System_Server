@@ -4,7 +4,11 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth_middleware");
 
-
+// auto login
+router.get("/login", auth, (req, res) => {
+  console.log("authorizedddd");
+  console.log(req.user);
+});
 
 //login
 router.post("/login", async (req, res) => {
@@ -14,17 +18,28 @@ router.post("/login", async (req, res) => {
       return res.send("Invalid user");
     }
     const isValidPass = await bcrypt.compare(req.body.password, user.password);
-    console.log("isValidPAss :", isValidPass);
     if (isValidPass) {
       const token = await user.generateAuthToken();
-      res.status(200).send({ user, token });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.status(200).send({ user });
     } else {
-      res.send("Invalid email or password");
+      res.send({ err: "Invalid email or password" });
     }
   } catch (err) {
     console.log("Error while login", err);
-    res.send({message:"Error while login", err});
+    res.send({ message: "Error while login", err });
   }
+});
+
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.send({
+    msg: "loggedout",
+  });
 });
 
 // register
@@ -34,16 +49,20 @@ router.post("/register", async (req, res) => {
     const user = new User(req.body);
     await user.save();
     const token = await user.generateAuthToken();
-    res.status(201).send({ user, token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.status(201).send({ user });
     // const user = await User.create(req.body)
   } catch (error) {
-    res.status(404).send({msg:"error in create user",error});
+    res.status(404).send({ msg: "error in create user", error });
   }
-
 });
 
 //update user details
-router.patch("/edit/:id",auth, async (req, res) => {
+router.patch("/edit/:id", auth, async (req, res) => {
   await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -59,26 +78,26 @@ router.patch("/edit/:id",auth, async (req, res) => {
 });
 
 //fetch all users
-router.get("/",auth, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   await User.find()
     .then((data) => {
       console.log(data);
       res.status(200).send(data);
     })
     .catch((err) => {
-      res.send({message:"error in fetching user", err});
+      res.send({ message: "error in fetching user", err });
     });
 });
 
 //fetch user by id
-router.get("/:id",auth, async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   await User.findById(req.params.id)
     .then((data) => {
       console.log(data);
       res.status(200).send(data);
     })
     .catch((err) => {
-      res.status(404).send({err:"error in getting user by id"});
+      res.status(404).send({ err: "error in getting user by id" });
     });
 });
 

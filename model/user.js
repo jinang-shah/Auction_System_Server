@@ -56,7 +56,7 @@ const User = new schema(
     favouriteProdcts: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product", 
+        ref: "Product",
       },
     ],
     notifications: {
@@ -65,29 +65,31 @@ const User = new schema(
           productId: {
             type: String,
           },
-          when: {
-            type: String,
-          },
+          when: [
+            {
+              at: {
+                type: Date,
+                required: true,
+              },
+              viewed: {
+                type: Boolean,
+                default: false,
+              },
+            },
+          ],
         },
       ],
     },
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
   },
   { timestamps: true }
 );
 
 User.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
+  const token = jwt.sign(
+    { _id: user._id.toString() },
+    process.env.JWT_SECRET_KEY
+  );
   return token;
 };
 
