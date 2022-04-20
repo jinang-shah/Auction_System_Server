@@ -1,94 +1,101 @@
 const mongoose = require("mongoose");
+// const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const schema = mongoose.Schema;
 
-const User = new schema(
-  {
+const User = new schema({
     name: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     email: {
-      type: String,
-      unique: true,
-      trim: true,
-      required: true,
+        type: String,
+        unique: true,
+        trim: true,
+        required: true,
     },
     mobile: {
-      type: Number,
-      required: true,
+        type: Number,
+        required: true,
     },
     password: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
+        minlength: 6,
+        // select: false,
     },
+
+
     address: {
-      type: {},
-      required: true,
+        type: {},
+        required: true,
     },
-    ducuments: {
-      type: [],
+    documents: {
+        type: [],
     },
     productBill: {
-      type: String,
+        type: String,
     },
     isSeller: {
-      type: Boolean,
-      default: false,
+        type: Boolean,
+        default: false,
     },
     isAdmin: {
-      type: Boolean,
-      default: false,
+        type: Boolean,
+        default: false,
     },
-    buyHistory: [
-      {
+    buyHistory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-      },
-    ],
-    sellHistory: [
-      {
+    }, ],
+    sellHistory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-      },
-    ],
-    favouriteProdcts: [
-      {
+    }, ],
+    favouriteProdcts: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-      },
-    ],
+    }, ],
     notifications: {
-      type: [
-        {
-          productId: {
-            type: String,
-          },
-          when: {
-            type: String,
-          },
-        },
-      ],
+        type: [{
+            productId: {
+                type: String,
+            },
+            when: {
+                type: String,
+            },
+        }, ],
     },
-    tokens: [
-      {
+    tokens: [{
         token: {
-          type: String,
-          required: true,
+            type: String,
+            required: true,
         },
-      },
-    ],
-  },
-  { timestamps: true }
-);
+    }, ],
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+}, { timestamps: true });
+User.methods.getResetPasswordToken = function() {
+    const resetToken = crypto.randomBytes(20).toString("hex");
 
-User.methods.generateAuthToken = async function () {
-  const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
-  return token;
+    this.resetPasswordToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
+};
+
+User.methods.generateAuthToken = async function() {
+    const user = this;
+    const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
+    user.tokens = user.tokens.concat({ token });
+    await user.save();
+    return token;
 };
 
 module.exports = mongoose.model("Users", User);

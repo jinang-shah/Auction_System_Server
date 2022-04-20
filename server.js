@@ -1,8 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose')
-const Product = require('./modules/api/routes/product')
-const Users = require('./modules/api/routes/user')
+const router = require('./route')
 require('dotenv').config()
 
 
@@ -27,8 +26,7 @@ app.get('/', (req, res) => {
     res.send("Home Page")
 })
 
-app.use('/product', Product);
-app.use('/users',Users)
+app.use(router);
 
 
 app.listen(PORT, () => {
