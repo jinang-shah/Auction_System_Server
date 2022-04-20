@@ -1,10 +1,8 @@
 const express = require("express");
 const User = require("../../../model/user");
-const Product = require("../../../model/product");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth_middleware");
-const addNotify = require("../../../helper/addForNotification");
 
 //login
 router.post("/login", async (req, res) => {
@@ -22,7 +20,7 @@ router.post("/login", async (req, res) => {
     }
   } catch (err) {
     console.log("Error while login", err);
-    res.send("Error while login", err);
+    res.send({ message: "Error while login", err });
   }
 });
 
@@ -34,14 +32,15 @@ router.post("/register", async (req, res) => {
     await user.save();
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
-  } catch (err) {
-    console.log("error in creating user", err);
-    res.status(404).send({ msg: "error in creating user" });
+
+    // const user = await User.create(req.body)
+  } catch (error) {
+    res.status(404).send({ msg: "error in create user", error });
   }
 });
 
 //update user details
-router.patch("/edit/:id", async (req, res) => {
+router.patch("/edit/:id", auth, async (req, res) => {
   await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -77,7 +76,7 @@ router.get("/:id", async (req, res) => {
       res.status(200).send(data);
     })
     .catch((err) => {
-      res.status(404).send("error in getting user by id", err);
+      res.status(404).send({ err: "error in getting user by id" });
     });
 });
 

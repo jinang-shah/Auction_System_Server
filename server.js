@@ -1,13 +1,16 @@
 const express = require("express");
+const app = express();
+const http = require("http");
+const server = http.createServer(app);
+const io = require("socket.io")(server, { cors: { origin: "*" } });
+
 const cors = require("cors");
 const mongoose = require("mongoose");
-const router = require("./route");
+const routes = require("./route");
 require("dotenv").config();
 
-// const MONGO_URI = process.env.MONGO_URI
 const MONGO_URI = process.env.MONGO_URI;
-const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8000;
 
 mongoose
   .connect(MONGO_URI)
@@ -21,12 +24,17 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-app.use(router);
+io.on("connection", (socket) => {
+  console.log("new User connected");
+  io.emit("hello", "world how are you");
+});
+
+app.use(routes);
 
 app.use("/", (req, res) => {
   res.send({ msg: "route handler not set" });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server is running on Port : ", PORT);
 });
