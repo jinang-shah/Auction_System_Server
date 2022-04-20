@@ -1,29 +1,28 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
 let Complain = new schema({
-    buyerId:{
-        type:String,
-        required:true
-    },
-    sellerId:{
-        type:String,
-        required:true
-    },
-    complainDetails:{
-        type:String,
-        required:true
-    },
-    productId:{
-        type:String,
-        required:true
-    },
-    image:{
-        type:[],
-        default:[],
+  buyerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  complainDetails: {
+    type: String,
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  image: {
+    type: [],
+    default: [],
+  },
+});
 
-    }
-})
-
-module.exports = mongoose.model('Complain',Complain)
+module.exports = mongoose.model("Complain", Complain);

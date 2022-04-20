@@ -27,7 +27,7 @@ const User = new schema(
       type: {},
       required: true,
     },
-    ducuments: {
+    documents: {
       type: [],
     },
     productBill: {
@@ -63,11 +63,20 @@ const User = new schema(
       type: [
         {
           productId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
           },
-          when: {
-            type: String,
-          },
+          times: [
+            {
+              at: {
+                type: Date,
+              },
+              viewed: {
+                type: Boolean,
+                default: false,
+              },
+            },
+          ],
         },
       ],
     },
