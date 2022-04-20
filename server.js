@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const routes = require("./route");
 require("dotenv").config();
@@ -21,7 +22,8 @@ mongoose
     console.log("error in connecting to MongoDb");
   });
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
 app.use(express.json());
 
 io.on("connection", (socket) => {
@@ -29,11 +31,11 @@ io.on("connection", (socket) => {
   io.emit("hello", "world how are you");
 });
 
-app.use(routes);
-
-app.use("/", (req, res) => {
-  res.send({ msg: "route handler not set" });
+app.get("/", (req, res) => {
+  res.send("Home Page");
 });
+
+app.use(routes);
 
 server.listen(PORT, () => {
   console.log("Server is running on Port : ", PORT);
