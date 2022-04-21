@@ -1,6 +1,8 @@
+
 const express = require('express')
 const router = express.Router()
 let Complain = require('../../../model/complain');
+const User = require("../../../model/user");
 
 
 
@@ -56,5 +58,16 @@ router.get('/:id',(req,res)=>{
     }
 })
 
+// get all users (admin-manage-users)
+router.get("/users", async (req, res) => {
+  await User.find()
+    .then((data) => {
+      console.log(data);
+      res.status(200).send(data);
+    })
+    .catch((err) => {
+      res.send("error in fetching user", err);
+    });
+});
 
 module.exports = router;
