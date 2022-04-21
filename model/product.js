@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
-// let
+
 let schema = mongoose.Schema;
 let Product = new schema({
   name: {
     type: String,
     required: true,
-    
   },
   description: {
     type: String,
