@@ -3,17 +3,47 @@ const User = require('../../../model/user')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
 const sendEmail = require("../utils/sendEmails");
+const crypto = require("crypto");
 
 //change password
 router.post('/change-password', async(req, res) => {
     console.log(req.body);
+
     res.send({ msg: "done" });
 })
 
 //reset password
-router.post('/reset-password', async(req, res) => {
-    console.log(req.body);
-    res.send({ msg: "done" });
+
+router.post('/reset-password/:resetToken', async(req, res, next) => {
+    try {
+        console.log(req.params.resetToken);
+        const resetPasswordToken = crypto.createHash("sha256")
+            .update(req.params.resetToken)
+            .digest("hex");
+
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return next(new Error("Invalid reset Token", 400));
+        }
+
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        //console.log(user)
+        await user.save();
+
+        res.status(201).json({
+            success: true,
+            data: "password reset success",
+        });
+    } catch (error) {
+        next(error);
+    }
+
 })
 
 //forgot password
@@ -24,7 +54,7 @@ router.post('/forgot-password', async(req, res, next) => {
 
     try {
         const user = await User.findOne({ email });
-        console.log(user);
+        // console.log(user);
 
         if (!user) {
             return next(new Error("Email could not be sent, no user", 404));
@@ -48,7 +78,8 @@ router.post('/forgot-password', async(req, res, next) => {
                 subject: "password reset request",
                 text: message,
             });
-            res.status(200).json({ success: true, data: "Email sent" });
+            res.status(200).json(resetToken);
+
         } catch (error) {
             user.resetpasswordToken = undefined;
             user.resetpasswordExpire = undefined;

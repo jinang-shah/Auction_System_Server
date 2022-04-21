@@ -23,7 +23,7 @@ const User = new schema({
     password: {
         type: String,
         required: true,
-        minlength: 6,
+        minlength: 8,
         // select: false,
     },
 
@@ -76,7 +76,9 @@ const User = new schema({
     }, ],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
-}, { timestamps: true });
+}, {
+    timestamps: true
+});
 User.methods.getResetPasswordToken = function() {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
