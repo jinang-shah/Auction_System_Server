@@ -1,6 +1,9 @@
 const express = require('express')
+const multer = require('multer');
 const router = express.Router()
-let Product = require('../../../model/product')
+// const emplist = require('../../../model/user')
+let Product = require('../../../model/product');
+let Complain = require('../../../model/complain');
 
 
 // get all products
@@ -59,8 +62,43 @@ router.post('/create-product', (req, res) => {
 })
 
 
+//additem
+const fileStorageEngine = multer.diskStorage({
+    destination:(req,file,cb)=>{
+        cb(null,'images/')
+    },
+    filename:(req,file,cb)=>{
+        cb(null,Date.now()+"--"+file.originalname);
+    }
+})
+
+const upload = multer({storage:fileStorageEngine});
+
+router.post('/additem',upload.fields([{name:"bill",maxCount:1},{name:"images",maxCount:4}]),(req, res) => {
+    console.log(req.files);
+    req.body.bill = req.files.bill.map(x => x.path);
+    req.body.images = req.files.images.map(x => x.path);
+    var emp = new Product(req.body); /////
+    emp.save((err, doc) => {
+        if (!err) { res.send(doc);
+        // console.log(req.file)
+     }
+        else { console.log('Error in Employee Save :' + JSON.stringify(err, undefined, 2)); }
+    });
+});
+
+//Product complain
 
 
+router.post('/complain',upload.fields([{name:"images",maxCount:1}]),(req, res) => {
+    console.log(req.files);
+    req.body.images = req.files.images.map(x => x.path);
+    var emp = new Complain(req.body);
+    emp.save((err, doc) => {
+        if (!err) { res.send(doc); }
+        else { console.log('Error in Employee Save :' + JSON.stringify(err, undefined, 2)); }
+    });
+});
 
 
 module.exports = router;

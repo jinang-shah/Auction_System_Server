@@ -4,25 +4,28 @@ let schema = mongoose.Schema;
 
 let Complain = new schema({
     buyerId:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Users'
     },
     sellerId:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Users'
     },
     complainDetails:{
         type:String,
         required:true
     },
     productId:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Product'
     },
-    image:{
+    images:{
         type:[],
         default:[],
-
+    },
+    date:{
+        type: Date,
+        default: Date.now,
     }
 })
 

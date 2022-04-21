@@ -3,6 +3,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const Product = require('./modules/api/routes/product')
 const Users = require('./modules/api/routes/user')
+const router = require('./route')
 require('dotenv').config()
 
 
@@ -21,15 +22,14 @@ mongoose
     })
 
 app.use(cors())
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"))
 app.use(express.json())
 
 app.get('/', (req, res) => {
     res.send("Home Page")
 })
 
-app.use('/product', Product);
-app.use('/users',Users)
-
+app.use(router);
 
 app.listen(PORT, () => {
     console.log("Server is running on Port : ", PORT)
