@@ -25,14 +25,11 @@ mongoose
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"))
 
 io.on("connection", (socket) => {
   console.log("new User connected");
   io.emit("hello", "world how are you");
-});
-
-app.get("/", (req, res) => {
-  res.send("Home Page");
 });
 
 app.use(routes);
@@ -40,3 +37,4 @@ app.use(routes);
 server.listen(PORT, () => {
   console.log("Server is running on Port : ", PORT);
 });
+

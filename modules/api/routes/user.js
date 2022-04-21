@@ -1,3 +1,4 @@
+
 const express = require("express");
 const User = require("../../../model/user");
 const router = express.Router();
@@ -9,6 +10,7 @@ router.get("/login", auth, (req, res) => {
   console.log("authorizedddd");
   console.log(req.user);
 });
+
 
 //login
 router.post("/login", async (req, res) => {

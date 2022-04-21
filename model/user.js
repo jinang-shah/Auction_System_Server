@@ -93,4 +93,6 @@ User.methods.generateAuthToken = async function () {
   return token;
 };
 
+
+
 module.exports = mongoose.model("Users", User);
