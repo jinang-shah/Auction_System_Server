@@ -26,8 +26,6 @@ const User = new schema({
         minlength: 8,
         // select: false,
     },
-
-
     address: {
         type: {},
         required: true,
@@ -63,22 +61,22 @@ const User = new schema({
             productId: {
                 type: String,
             },
-            when: {
-                type: String,
-            },
+            when: [{
+                at: {
+                    type: Date,
+                    required: true,
+                },
+                viewed: {
+                    type: Boolean,
+                    default: false,
+                },
+            }, ],
         }, ],
     },
-    tokens: [{
-        token: {
-            type: String,
-            required: true,
-        },
-    }, ],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
+
 User.methods.getResetPasswordToken = function() {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -107,13 +105,11 @@ User.methods.matchPassword = async function(password) {
     return await bcrypt.compare(password, this.password);
 };
 
-
-
 User.methods.generateAuthToken = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
-    user.tokens = user.tokens.concat({ token });
-    await user.save();
+    const token = jwt.sign({ _id: user._id.toString() },
+        process.env.JWT_SECRET_KEY
+    );
     return token;
 };
 
