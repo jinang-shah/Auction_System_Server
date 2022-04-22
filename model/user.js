@@ -53,7 +53,7 @@ const User = new schema(
         ref: "Product",
       },
     ],
-    favouriteProdcts: [
+    favouriteProducts: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",

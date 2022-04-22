@@ -3,11 +3,14 @@ const User = require("../../../model/user");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth_middleware");
+const favorite = require("./favorite");
+
+router.use(favorite);
 
 // auto login
 router.get("/login", auth, (req, res) => {
   console.log("authorizedddd");
-  console.log(req.user);
+  res.send(req.user);
 });
 
 //login
