@@ -92,6 +92,23 @@ User.methods.getResetPasswordToken = function() {
     return resetToken;
 };
 
+User.pre("save", async function(next) {
+    if (!this.isModified("password")) {
+        next();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
+
+User.methods.matchPassword = async function(password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+
+
 User.methods.generateAuthToken = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
