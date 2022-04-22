@@ -66,7 +66,9 @@ io.on("connection", (user) => {
     const updatedData = {
       timeStamp:commentData.timeStamp,
       data:commentData.data,
-      name:await getUserName(user.id),
+      senderId:{
+        name:await getUserName(user.id)
+      },
       productId:user.productId
     }
 
@@ -74,7 +76,42 @@ io.on("connection", (user) => {
 
     io.emit('receiveComment',updatedData)
     console.log("done");
-})
+  })
+
+  user.on("makeBid",async (data) => {
+
+    const productId = data.productId
+
+    bidData = {
+      bidAmount:data.amount,
+      timeStamp:data.timeStamp,
+      bidderId:user.id,
+    }
+
+    console.log("bid Data :",bidData)
+
+    await Product_Model.findByIdAndUpdate(productId,{
+      $push:{bidDetails:bidData},
+      maxBid:bidData.bidAmount
+    }).catch((err)=>{
+      console.log("error while updating bid")
+    })
+    
+    const updatedData = {
+      timeStamp:bidData.timeStamp,
+      amount:bidData.bidAmount,
+      bidderId:{
+        name:await getUserName(user.id)
+      },
+      productId:user.productId
+    }
+
+    console.log("updated Bid Data: ",updatedData)
+
+    io.emit('receiveBid',updatedData)
+    console.log("done");
+  })
+
 });
 
 

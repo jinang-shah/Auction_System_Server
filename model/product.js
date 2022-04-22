@@ -36,24 +36,43 @@ let Product = new schema({
     required: true,
   },
   sellerId: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"Users",
+    required:true,
   },
   buyerId: {
-    type: String,
-    default: null,
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"Users"
   },
   isVerified: {
     type: Boolean,
     default: false,
   },
+  maxBid:{
+    type:Number,
+    default:0,
+  },
   comments: {
-    type: [],
+    type: [
+      {
+      senderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Users"
+      },
+      data: {
+        type: String,
+      },
+      timeStamp: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+    ],
     default: [],
   },
   bidDetails: [
     {
-      userId: {
+      bidderId: {
         type: String,
       },
       bidAmount: {
