@@ -27,7 +27,7 @@ const User = new schema(
       type: {},
       required: true,
     },
-    ducuments: {
+    documents: {
       type: [],
     },
     productBill: {

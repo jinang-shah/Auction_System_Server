@@ -6,22 +6,25 @@ let Complain = require('../../../model/complain');
 
 // Get complainlist
 
-router.get('/complainlist',(req,res)=>{
+router.get('/complainlist', async (req,res)=>{
     console.log("admin complain");
+
     try{
-        Complain.find().then((data,error)=>{
-            
-            if(error){
-                console.log("complainlist error :",error);
-                res.send("Error in getting")
-            }else{
-               
-                console.log(data);
-                res.send(data);
+        const complain =  await Complain.find()
+        var data = []
+        for(let i=0; i<complain.length; i++){
+            data.push(await complain[i].populate('buyerId'))
+        }
+        const details = data.map((data) => {
+            return {
+                name:data.buyerId.name,
+                date: data.date
             }
         })
+        res.send(details)
     }
-    catch{
+    catch(error){
+        console.log(error);
         res.send("Error")
     }
 })
