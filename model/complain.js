@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
@@ -30,3 +30,4 @@ let Complain = new schema({
 })
 
 module.exports = mongoose.model('Complain',Complain)
+
