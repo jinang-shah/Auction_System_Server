@@ -19,8 +19,7 @@ router.get('/',(req,res)=>{
 // get product by id
 router.get('/:id', async(req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate("comments.senderId")
-
+        const product = await Product.findById(req.params.id).populate("comments.senderId").populate("bidDetails.bidderId")
         res.send(product);
     } catch (error) {
         console.log(error);
@@ -44,12 +43,13 @@ router.post('/create-product', (req, res) => {
     currentDate.setDate(currentDate.getDate() + 1);
 
     Product.create({
-        name: "Samsung PS 5",
+        name: "Vivo PS 5",
         description: "ROG Strix GT35, 8 Cores 10th Gen Intel Core i7-10700KF Gaming Desktop (32GB RAM/1TB HDD + 512GB SSD/Window 10/8GB NVIDIA GeForce RTX 2060 SUPER Graphics/with Keyboard & Mouse/Star Black), G35CZ-IN009T",
         category: "Electronics",
         sellerId: "625fe991ce662df8411b84c6",
+        buyerId:"625a60030ad994a0889689e2",
         basePrice: 2000,
-        status:"live",
+        status:"completed",
         images: [
             "https://m.media-amazon.com/images/I/81Ld2NSrrZL._SL1500_.jpg",
             "https://m.media-amazon.com/images/I/71ozb7RIWLL._SL1500_.jpg",

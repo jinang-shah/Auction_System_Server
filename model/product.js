@@ -73,7 +73,8 @@ let Product = new schema({
   bidDetails: [
     {
       bidderId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Users"
       },
       bidAmount: {
         type: Number,

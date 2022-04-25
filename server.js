@@ -16,7 +16,6 @@ require('dotenv').config()
 
 // const MONGO_URI = process.env.MONGO_URI
 const MONGO_URI = "mongodb+srv://admin123:InpaPNEXVJ5sOtlw@cluster0.opxsk.mongodb.net/Auction_System?retryWrites=true&w=majority"
-// const app = express();
 const PORT = process.env.PORT || 8000;
 
 mongoose
@@ -113,11 +112,6 @@ io.on("connection", (user) => {
   })
 
 });
-
-
-app.get('/', (req, res) => {
-    res.send("Home Page")
-})
 
 app.use(routes)
 
