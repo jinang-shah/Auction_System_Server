@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
-
 let Product = new schema({
   name: {
     type: String,
@@ -27,6 +26,10 @@ let Product = new schema({
     type: [],
     required: true,
   },
+  bill:{
+    type :[],
+    required:true
+  },
   startDate: {
     type: Date,
     required: true,
@@ -37,12 +40,12 @@ let Product = new schema({
   },
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"Users",
+    ref:"User",
     required:true,
   },
   buyerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"Users"
+    ref:"User"
   },
   isVerified: {
     type: Boolean,
@@ -57,7 +60,7 @@ let Product = new schema({
       {
       senderId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Users"
+        ref:"User"
       },
       data: {
         type: String,
@@ -74,7 +77,7 @@ let Product = new schema({
     {
       bidderId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Users"
+        ref:"User"
       },
       bidAmount: {
         type: Number,
@@ -85,6 +88,6 @@ let Product = new schema({
       },
     },
   ],
-});
+},{timestamps:true});
 
 module.exports = mongoose.model("Product", Product);
