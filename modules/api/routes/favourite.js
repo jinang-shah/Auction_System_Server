@@ -1,5 +1,4 @@
 const express = require("express");
-const User = require("../../../model/user");
 const router = express.Router();
 const auth = require("../middleware/auth_middleware");
 
@@ -10,26 +9,33 @@ router.get("/favourite", auth, async (req, res) => {
 });
 
 // add product to favourite
-router.post("/favourite", auth, async (req, res) => {
-  if (!req.body.productId) {
+router.post("/favourite/:productId", auth, async (req, res) => {
+  let pId = req.params.productId;
+  if (!pId) {
     res.status(400).send({
       msg: "Product ID not found",
     });
   }
-  req.user.favouriteProducts.push(req.body.productId);
-  await req.user.save();
-  res.send({ msg: "added" });
+  let index = req.user.favouriteProducts.indexOf(pId);
+  if (index == -1) {
+    req.user.favouriteProducts.push(pId);
+    await req.user.save();
+    res.send({ msg: "added" });
+  } else {
+    res.send({ msg: "already added" });
+  }
 });
 
 // remove product from favourite
-router.delete("/favourite", auth, async (req, res) => {
-  if (!req.body.productId) {
+router.delete("/favourite/:productId", auth, async (req, res) => {
+  let pId = req.params.productId;
+  if (!pId) {
     res.status(400).send({
       msg: "Product ID not found",
     });
   }
   req.user.favouriteProducts = req.user.favouriteProducts.filter(
-    (id) => req.body.productId !== id.toString()
+    (id) => pId !== id.toString()
   );
   await req.user.save();
   res.send({ msg: "removed" });

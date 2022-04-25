@@ -3,9 +3,9 @@ const User = require("../../../model/user");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth_middleware");
-const favorite = require("./favorite");
+const favourite = require("./favourite");
 
-router.use(favorite);
+router.use(favourite);
 
 // auto login
 router.get("/login", auth, (req, res) => {
