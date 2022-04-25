@@ -7,65 +7,28 @@ const crypto = require("crypto");
 const auth = require("../middleware/auth_middleware");
 
 //change password
-router.post('/change-password/:token', async(req, res, next) => {
+router.post('/change-password/:id', auth, async(req, res) => {
+    const passwordDetails = req.body;
+    const user = req.user;
+    console.log(user);
+    console.log(passwordDetails);
+    const isValidPass = await bcrypt.compare(passwordDetails.oldPassword, user.password);
+    console.log(isValidPass);
+    if (isValidPass) {
+        user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
 
-
-    // Init Variables
-    var passwordDetails = req.body;
-
-    if (req.user) {
-        if (passwordDetails.newPassword) {
-            User.findById(req.user.id, function(err, user) {
-                if (!err && user) {
-                    if (user.authenticate(passwordDetails.oldaPssword)) {
-                        if (passwordDetails.newPassword === passwordDetails.confirmPassword) {
-                            user.password = passwordDetails.newPassword;
-
-                            user.save(function(err) {
-                                if (err) {
-                                    return res.status(422).send({
-                                        message: errorHandler.getErrorMessage(err)
-                                    });
-                                } else {
-                                    req.login(user, function(err) {
-                                        if (err) {
-                                            res.status(400).send(err);
-                                        } else {
-                                            res.send({
-                                                message: 'Password changed successfully'
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        } else {
-                            res.status(422).send({
-                                message: 'Passwords do not match'
-                            });
-                        }
-                    } else {
-                        res.status(422).send({
-                            message: 'Current password is incorrect'
-                        });
-                    }
-                } else {
-                    res.status(400).send({
-                        message: 'User is not found'
-                    });
-                }
-            });
-        } else {
-            res.status(422).send({
-                message: 'Please provide a new password'
-            });
-        }
+        await user.save();
+        res.status(200).send();
+        console.log("Password change sucessfully");
     } else {
-        res.status(401).send({
-            message: 'User is not signed in'
-        });
-    }
 
+    }
 })
+
+
+
+
+
 
 //reset password
 
@@ -157,6 +120,7 @@ router.get("/login", auth, (req, res) => {
 
 //login
 router.post("/login", async(req, res) => {
+    console.log("login page");
     try {
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
