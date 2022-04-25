@@ -2,30 +2,31 @@ const mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
-let Complain = new schema(
-  {
-    buyerId: {
-      type: String,
-      required: true,
-    },
-    sellerId: {
-      type: String,
-      required: true,
-    },
-    complainDetails: {
-      type: String,
-      required: true,
-    },
-    productId: {
-      type: String,
-      required: true,
-    },
-    image: {
-      type: [],
-      default: [],
-    },
+let Complain = new schema({
+  buyerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
   },
-  { timestamps: true }
-);
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  complainDetails: {
+    type: String,
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+  },
+  images: {
+    type: [],
+    default: [],
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 module.exports = mongoose.model("Complain", Complain);
