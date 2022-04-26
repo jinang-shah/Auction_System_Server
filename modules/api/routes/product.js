@@ -9,7 +9,7 @@ router.get('/',(req,res)=>{
     .find()
     .then((data)=>{
         res.status(200).send(data);
-    })
+    })  
     .catch((err)=>{
         console.log("error in getting product :",err)
         res.send("Error in Fetching products")
@@ -18,7 +18,6 @@ router.get('/',(req,res)=>{
 
 // get product by id
 router.get('/:id', (req, res) => {
-    console.log("Hello product by id")
     Product.findById(req.params.id, (error, data) => {
         if (error) {
             console.log("product by id :", error);
@@ -29,6 +28,8 @@ router.get('/:id', (req, res) => {
         }
     })
 })
+
+
 
 //create new product
 router.post('/create-product', (req, res) => {

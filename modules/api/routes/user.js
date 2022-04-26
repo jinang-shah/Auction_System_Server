@@ -33,11 +33,12 @@ router.post('/register',async (req, res) => {
         const user  = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
+        console.log(user);
         res.status(201).send({user,token}) 
         // const user = await User.create(req.body)
         
     } catch (error) {
-        res.status(404).send("error in creating user",err)
+        res.status(404).send({message:"error in creating user",err:error})
     }
     
     // .then((data)=>{
@@ -58,7 +59,7 @@ router.patch('/edit/:id',async(req,res)=>{
     })
     .catch((err)=>{
         console.log("error while updating user details",err)
-        res.status(404).send("error while updating user details")
+        res.status(404).send({message:"error while updating user details",err:error})
     })
 })
 
@@ -82,7 +83,7 @@ router.get('/:id',async (req, res) => {
         res.status(200).send(data);
     })
     .catch((err)=>{
-        res.status(404).send("error in getting user by id",err)
+        res.status(404).send({message:"error in getting user by id",err})
     })
 })
 
