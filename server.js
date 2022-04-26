@@ -112,12 +112,10 @@ io.on("connection", (user) => {
     io.emit('receiveBid',updatedData)
     console.log("done");
   })
-
 });
 
 app.use(routes)
 
 server.listen(PORT, () => {
-  console.log("Server is running on Port : ", PORT);
+    console.log("Server is running on Port : ", PORT);
 });
-
