@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const schema = mongoose.Schema;
 
@@ -22,14 +24,26 @@ const User = new schema(
     password: {
       type: String,
       required: true,
+      minlength: 8,
+      // select: false,
     },
     address: {
       type: {},
       required: true,
     },
-    documents: {
-      type: [],
-    },
+    documents: [
+      {
+        aadharcard: {
+          type: String,
+        },
+        pancard: {
+          type: String,
+        },
+        elecard: {
+          type: String,
+        },
+      },
+    ],
     productBill: {
       type: String,
     },
@@ -65,29 +79,61 @@ const User = new schema(
           productId: {
             type: String,
           },
-          when: {
-            type: String,
-          },
+          when: [
+            {
+              at: {
+                type: Date,
+                required: true,
+              },
+              viewed: {
+                type: Boolean,
+                default: false,
+              },
+            },
+          ],
         },
       ],
     },
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
 
+User.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+
+User.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+User.methods.matchPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
 User.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "dontcomehere");
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
+  const token = jwt.sign(
+    { _id: user._id.toString() },
+    process.env.JWT_SECRET_KEY
+  );
   return token;
 };
 
