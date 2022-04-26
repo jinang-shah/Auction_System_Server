@@ -27,9 +27,19 @@ const User = new schema(
       type: {},
       required: true,
     },
-    documents: {
-      type: [],
-    },
+    documents: [
+      {
+        aadharcard: {
+          type: String,
+        },
+        pancard: {
+          type: String,
+        },
+        elecard: {
+          type: String,
+        },
+      },
+    ],
     productBill: {
       type: String,
     },
@@ -56,7 +66,7 @@ const User = new schema(
     favouriteProdcts: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product", 
+        ref: "Product",
       },
     ],
     notifications: {
