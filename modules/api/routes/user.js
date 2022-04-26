@@ -5,6 +5,9 @@ const bcrypt = require('bcryptjs')
 const sendEmail = require("../utils/sendEmails");
 const crypto = require("crypto");
 const auth = require("../middleware/auth_middleware");
+const favourite = require("./favourite");
+
+router.use(favourite);
 
 //change password
 router.post('/change-password/:id', auth, async(req, res) => {
@@ -113,8 +116,8 @@ router.post('/forgot-password', async(req, res, next) => {
 
 // auto login
 router.get("/login", auth, (req, res) => {
-    console.log("authorizedddd");
-    console.log(req.user);
+  console.log("authorizedddd");
+  res.send(req.user);
 });
 
 

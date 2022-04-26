@@ -51,11 +51,14 @@ const User = new schema({
     sellHistory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-    }, ],
-    favouriteProdcts: [{
+      },
+    ],
+    favouriteProducts: [
+      {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-    }, ],
+      }, 
+    ],
     notifications: {
         type: [{
             productId: {
