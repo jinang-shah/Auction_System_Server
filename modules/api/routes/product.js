@@ -78,7 +78,7 @@ router.post('/complain',upload.fields([{name:"images",maxCount:1}]),(req, res) =
         if (!err) { res.send(doc); }
         else { console.log('Error in Employee Save :' + JSON.stringify(err, undefined, 2)); }
     });
-
+})
 // get product by id
 router.get("/:id", (req, res) => {
   Product.findById(req.params.id, (error, data) => {
