@@ -77,9 +77,6 @@ router.post('/additem',upload.fields([{name:"bill",maxCount:1},{name:"images",ma
     });
 });
 
-
-
-
 router.post('/complain',upload.fields([{name:"images",maxCount:1}]),(req, res) => {
     console.log(req.files);
     req.body.images = req.files.images.map(x => x.path);
