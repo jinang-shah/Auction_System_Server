@@ -25,15 +25,6 @@ router.get('/:id', async(req, res) => {
         console.log(error);
         res.send(error)
     }
-    // Product.findById(req.params.id, (error, data) => {
-    //     if (error) {
-    //         // console.log("product by id :", error);
-    //         res.send("Error in getting product by id");
-    //     }
-    //     else {
-    //         res.json(data)
-    //     }
-    // }).populate()
 })
 
 //create new product
@@ -69,10 +60,5 @@ router.post('/create-product', (req, res) => {
         }
     })
 })
-
-
-
-
-
 
 module.exports = router;
