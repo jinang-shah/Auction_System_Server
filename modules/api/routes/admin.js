@@ -20,7 +20,9 @@ router.get('/complainlist', async (req,res)=>{
         const details = data.map((data) => {
             return {
                 name:data.buyerId.name,
-                date: data.date
+                date: data.date,
+                id:data._id,
+                status:data.isSolved
             }
         })
         res.send(details)
@@ -72,5 +74,20 @@ router.get("/users", async (req, res) => {
       res.send("error in fetching user", err);
     });
 });
+
+//Complain Solved or Pending
+router.patch('/complain/solve/:id',async (req,res)=>{
+    console.log("sta",req.body.status,"id:",req.params.id);
+    await Complain.findByIdAndUpdate(req.params.id,{isSolved:req.body.status})
+    .then((data)=>{
+        console.log(data);
+        res.status(202).send(data);
+    })
+    .catch((err)=>{
+        console.log("error while verifing complain",err)
+        res.status(404).send({message:"error while verifing complain",err})
+    })
+})
+
 
 module.exports = router;
