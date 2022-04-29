@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 const cron = require("node-cron");
 const cors = require('cors')
+const cookieParser = require("cookie-parser");
 const mongoose = require('mongoose')
 const Product = require('./modules/api/routes/product')
 const Product_Model = require('./model/product')
@@ -14,8 +15,8 @@ const getUserName = require("./modules/api/utils/queries");
 require('dotenv').config()
 
 
-// const MONGO_URI = process.env.MONGO_URI
-const MONGO_URI = "mongodb+srv://admin123:InpaPNEXVJ5sOtlw@cluster0.opxsk.mongodb.net/Auction_System?retryWrites=true&w=majority"
+
+const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 8000;
 
 mongoose
@@ -27,7 +28,9 @@ mongoose
         console.log("error in connecting to MongoDb");
     })
 
-app.use(cors())
+app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"))
 app.use(express.json())
 
 
@@ -130,7 +133,7 @@ io.on("connection", (user) => {
 
 app.use(routes)
 
-
 server.listen(PORT, () => {
-    console.log("Server is running on Port : ", PORT)
-})
+  console.log("Server is running on Port : ", PORT);
+});
+
