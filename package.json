@@ -1,7 +1,6 @@
 {
   "name": "auction_system_server",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,8 +17,22 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.10",
     "multer": "^1.4.4",
-    "nodemon": "^2.0.15",
     "socket.io": "^4.4.1"
-
-  }
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinang-shah/Auction_System_Server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jinang-shah/Auction_System_Server/issues"
+  },
+  "homepage": "https://github.com/jinang-shah/Auction_System_Server#readme",
+  "description": ""
 }

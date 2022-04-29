@@ -1,4 +1,3 @@
-
 const express = require("express");
 const User = require("../../../model/user");
 const router = express.Router();
@@ -14,13 +13,13 @@ router.get("/login", auth, (req, res) => {
   res.send(req.user);
 });
 
-
 //login
 router.post("/login", async (req, res) => {
+  console.log("login api", req.body);
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.send("Invalid user");
+      return res.send({ message: "user not found", isValid: false });
     }
     const isValidPass = await bcrypt.compare(req.body.password, user.password);
     if (isValidPass) {
@@ -30,13 +29,13 @@ router.post("/login", async (req, res) => {
         secure: true,
         sameSite: "none",
       });
-      res.status(200).send({ user });
+      res.status(200).send({ message: "valid", user, isValid: true });
     } else {
-      res.send({ err: "Invalid email or password" });
+      res.send({ message: "Invalid email or password", isValid: false });
     }
   } catch (err) {
     console.log("Error while login", err);
-    res.send({ message: "Error while login", err });
+    res.send({ message: "Error while login", isValid: false });
   }
 });
 
