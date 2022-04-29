@@ -26,6 +26,10 @@ let Complain = new schema({
     date:{
         type: Date,
         default: Date.now,
+    },
+    isSolved:{
+        type:Boolean,
+        default:false
     }
 })
 
