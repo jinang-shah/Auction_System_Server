@@ -20,4 +20,30 @@ router.patch('/verify/:id',async (req,res)=>{
 })
 
 
+router.get('/', async(req, res) => {
+    try {
+        const product = await Product.find().populate("comments.senderId").populate("bidDetails.bidderId")
+        res.send(product);
+    } catch (error) {
+        console.log(error);
+        res.send(error)
+    }
+
+    //delete user by id
+router.delete("/:id", async (req, res) => {
+    console.log("product delete api");
+    try {
+      console.log("delete id", req.params.id);
+      await Product.findOneAndRemove(req.params.id).then((data) => {
+        res.send(data);
+        console.log(data);
+      });
+    } catch (error) {
+      res.send(err);
+    }
+  });
+})
+
+
+
 module.exports = router;
