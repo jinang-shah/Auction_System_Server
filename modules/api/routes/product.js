@@ -1,4 +1,3 @@
-
 const express = require('express')
 const multer = require('multer');
 const router = express.Router()
@@ -24,13 +23,11 @@ router.get("/", async (req, res) => {
   const skip = (parseInt(req.query.pageNo) || 0) * limit;
   console.log(req.query);
   console.log(limit, skip);
-
   const sort = {};
   if (req.query.sortBy) {
     const parts = req.query.sortBy.split(":");
     sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
   }
-
   try {
     const products = await Product.find(findObj)
       .sort(sort)
@@ -42,6 +39,18 @@ router.get("/", async (req, res) => {
     res.status(500).send();
   }
 });
+
+
+// get product by id
+router.get('/:id', async(req, res) => {
+    try {
+        const product = await Product.findById(req.params.id).populate("comments.senderId").populate("bidDetails.bidderId")
+        res.send(product);
+    } catch (error) {
+        console.log(error);
+        res.send(error)
+    }
+})
 
 //additem
 const fileStorageEngine = multer.diskStorage({
@@ -89,7 +98,6 @@ router.get("/:id", (req, res) => {
       res.json(data);
     }
   });
-
 });
 
 
