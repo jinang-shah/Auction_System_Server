@@ -27,6 +27,10 @@ let Complain = new schema({
     type: Date,
     default: Date.now,
   },
+  isSolved: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Complain", Complain);
