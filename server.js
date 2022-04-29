@@ -3,7 +3,8 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
-const cors = require("cors");
+const cron = require("node-cron");
+const cors = require('cors')
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const Product_Model = require("./model/product");
@@ -31,6 +32,21 @@ app.use(
   )
 );
 app.use(express.json());
+
+
+// cron.schedule("0 0 * * * *", async function() {
+//     await Product_Model.find({startDate:})
+// });
+
+const comparedate= async()=>{
+  product = await Product_Model.find()
+  var d1 = new Date();
+  var d2 = product[0].startDate;
+  console.log(d1,d2);
+  console.log(d1.getTime() > d2.getTime());
+}
+
+comparedate()
 
 io.on("connection", (user) => {
   console.log("new user connected");
