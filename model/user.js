@@ -137,4 +137,4 @@ User.methods.generateAuthToken = async function () {
   return token;
 };
 
-module.exports = mongoose.model("Users", User);
+module.exports = mongoose.model("User", User);
