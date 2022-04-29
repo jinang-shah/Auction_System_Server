@@ -5,3 +5,5 @@ node_modules
 .env
 *.envnode_modules/
 
+package-lock.json/
+package-lock.json

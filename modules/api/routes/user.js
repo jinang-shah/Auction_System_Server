@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> development
 const express = require("express");
 const User = require("../../../model/user");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-<<<<<<< HEAD
-=======
 const auth = require("../middleware/auth_middleware");
 const favourite = require("./favourite");
 
@@ -19,33 +13,15 @@ router.get("/login", auth, (req, res) => {
   res.send(req.user);
 });
 
->>>>>>> development
-
 //login
 router.post("/login", async (req, res) => {
+  console.log("login api", req.body);
   try {
     const user = await User.findOne({ email: req.body.email });
-<<<<<<< HEAD
-    console.log(user);
-=======
->>>>>>> development
     if (!user) {
-      return res.send("Invalid user");
+      return res.send({ message: "user not found", isValid: false });
     }
     const isValidPass = await bcrypt.compare(req.body.password, user.password);
-<<<<<<< HEAD
-    console.log("isValidPAss :", isValidPass);
-    if (isValidPass) {
-      const token = await user.generateAuthToken();
-      res.status(200).send({ user, token });
-    } else {
-      res.send("Invalid email or password");
-    }
-  } catch (err) {
-    res.send({ message: "Error while login", err });
-  }
-});
-=======
     if (isValidPass) {
       const token = await user.generateAuthToken();
       res.cookie("token", token, {
@@ -53,13 +29,13 @@ router.post("/login", async (req, res) => {
         secure: true,
         sameSite: "none",
       });
-      res.status(200).send({ user });
+      res.status(200).send({ message: "valid", user, isValid: true });
     } else {
-      res.send({ err: "Invalid email or password" });
+      res.send({ message: "Invalid email or password", isValid: false });
     }
   } catch (err) {
     console.log("Error while login", err);
-    res.send({ message: "Error while login", err });
+    res.send({ message: "Error while login", isValid: false });
   }
 });
 
@@ -69,7 +45,6 @@ router.get("/logout", (req, res) => {
     msg: "loggedout",
   });
 });
->>>>>>> development
 
 // register
 router.post("/register", async (req, res) => {
@@ -78,25 +53,6 @@ router.post("/register", async (req, res) => {
     const user = new User(req.body);
     await user.save();
     const token = await user.generateAuthToken();
-<<<<<<< HEAD
-    res.status(201).send({ user, token });
-    // const user = await User.create(req.body)
-  } catch (error) {
-    res.send({ message: "Error while registering user", err });
-  }
-
-  // .then((data)=>{
-  //     console.log(data)
-  //     const token =
-  //     res.status(200).send(data)
-  // }).catch((err)=>{
-  //     res.status(404).send("error in creating user",err)
-  // })
-});
-
-//update user details
-router.patch("/edit/:id", async (req, res) => {
-=======
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
@@ -111,7 +67,6 @@ router.patch("/edit/:id", async (req, res) => {
 
 //update user details
 router.patch("/edit/:id", auth, async (req, res) => {
->>>>>>> development
   await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -126,18 +81,6 @@ router.patch("/edit/:id", auth, async (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-//fetch all users
-router.get("/", async (req, res) => {
-  await User.find()
-    .then((data) => {
-      console.log(data);
-      res.status(200).send(data);
-    })
-    .catch((err) => {
-      res.send({ message: "Error while fetching users", err });
-    });
-=======
 // todo: add authmiddleware
 router.get("/notifications", auth, async (req, res) => {
   const user = req.user;
@@ -149,7 +92,6 @@ router.delete("/notification/:id", auth, (req, res) => {
   console.log(req.user);
 
   res.status(200).send({ msg: "Notification Deleted" });
->>>>>>> development
 });
 
 //fetch user by id
@@ -160,16 +102,8 @@ router.get("/:id", async (req, res) => {
       res.status(200).send(data);
     })
     .catch((err) => {
-<<<<<<< HEAD
-      res.send({ message: "Error while getting user by id", err });
-    });
-});
-
-
-=======
       res.status(404).send({ err: "error in getting user by id" });
     });
 });
->>>>>>> development
 
 module.exports = router;
