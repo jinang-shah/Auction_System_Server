@@ -1,10 +1,12 @@
 
 const express = require('express')
 const router = express.Router()
+const product  = require('./admin/product')
+
+router.use('/product',product)
+
 let Complain = require('../../../model/complain');
 const User = require("../../../model/user");
-
-
 
 // Get complainlist
 
