@@ -3,10 +3,6 @@ node_modules
 ./node_modules
 .env
 *.envnode_modules/
-<<<<<<< HEAD
-
 package-lock.json/
 package-lock.json
-=======
 .Vscode
->>>>>>> 3c41521112b91c97bb9e95bbaa893e1ec4265b04
