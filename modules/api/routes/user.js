@@ -198,6 +198,7 @@ router.get("/logout", (req, res) => {
 
 // register
 router.post("/register", async(req, res) => {
+    console.log("register user");
     try {
         req.body.password = await bcrypt.hash(req.body.password, 8);
         const user = new User(req.body);
@@ -208,10 +209,11 @@ router.post("/register", async(req, res) => {
             secure: true,
             sameSite: "none",
         });
-        res.status(201).send({ user });
+        res.status(200).send({ message: "user registered", user, isRegistered: true });
         // const user = await User.create(req.body)
     } catch (error) {
-        res.status(404).send({ msg: "error in create user", error });
+        console.log(error);
+        res.send({ message: "Error while registering", isRegistered: false });
     }
 });
 
