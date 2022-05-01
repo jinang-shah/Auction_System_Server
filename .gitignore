@@ -3,5 +3,11 @@ node_modules
 ./node_modules
 .env
 *.envnode_modules/
+<<<<<<< HEAD
 package-lock.json
 
+=======
+package-lock.json/
+package-lock.json
+.Vscode
+>>>>>>> development
