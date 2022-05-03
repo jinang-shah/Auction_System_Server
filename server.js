@@ -38,6 +38,7 @@ app.use(express.static("/home/yash/Auction_System_Server/documents/"));
 //         path
 //     )
 // );
+// app.use(express.static(path));
 app.use(express.json());
 
 // cron.schedule("0 0 * * * *", async function() {

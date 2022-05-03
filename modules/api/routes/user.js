@@ -164,11 +164,11 @@ router.get("/login", auth, (req, res) => {
 
 //login
 router.post("/login", async (req, res) => {
-  console.log("login page");
+  console.log("login api", req.body);
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.send("Invalid user");
+      return res.send({ message: "user not found", isValid: false });
     }
     const isValidPass = await bcrypt.compare(req.body.password, user.password);
     if (isValidPass) {
@@ -178,13 +178,13 @@ router.post("/login", async (req, res) => {
         secure: true,
         sameSite: "none",
       });
-      res.status(200).send({ user });
+      res.status(200).send({ message: "valid", user, isValid: true });
     } else {
-      res.send({ err: "Invalid email or password" });
+      res.send({ message: "Invalid email or password", isValid: false });
     }
   } catch (err) {
     console.log("Error while login", err);
-    res.send({ message: "Error while login", err });
+    res.send({ message: "Error while login", isValid: false });
   }
 });
 
@@ -203,16 +203,17 @@ router.post("/register", upload.single("aadharcard"), async (req, res) => {
     user.documents.aadharcard = req.file.path;
     await user.save();
     const token = await user.generateAuthToken();
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
-    res.status(201).send({ user });
-    // const user = await User.create(req.body)
-  } catch (error) {
-    res.status(404).send({ msg: "error in create user", error });
-  }
+  res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+        res.status(200).send({ message: "user registered", user, isRegistered: true });
+        // const user = await User.create(req.body)
+    } catch (error) {
+        console.log(error);
+        res.send({ message: "Error while registering", isRegistered: false });
+    }
 });
 
 //update user details
