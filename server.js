@@ -4,131 +4,126 @@ const http = require("http");
 const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
 const cron = require("node-cron");
-const cors = require('cors')
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const Product_Model = require("./model/product");
 const routes = require("./route");
 const getUserName = require("./modules/api/utils/queries");
-const path = require("./images");
+// const path = require("./images");
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 8000;
 
 mongoose
-    .connect(MONGO_URI)
-    .then((x) => {
-        console.log("connected to MongoDb Success....");
-    })
-    .catch((err) => {
-        console.log("error in connecting to MongoDb");
-    });
+  .connect(MONGO_URI)
+  .then((x) => {
+    console.log("connected to MongoDb Success....");
+  })
+  .catch((err) => {
+    console.log("error in connecting to MongoDb");
+  });
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
-app.use(
-    express.static(
-        path
-    )
-);
+// app.use(express.static(path));
 app.use(express.json());
-
 
 // cron.schedule("0 0 * * * *", async function() {
 //     await Product_Model.find({startDate:})
 // });
 
-const comparedate= async()=>{
-  product = await Product_Model.find()
+const comparedate = async () => {
+  product = await Product_Model.find();
   var d1 = new Date();
   var d2 = product[0].startDate;
-  console.log(d1,d2);
+  console.log(d1, d2);
   console.log(d1.getTime() > d2.getTime());
-}
+};
 
-comparedate()
+comparedate();
 
 io.on("connection", (user) => {
-    console.log("new user connected");
+  console.log("new user connected");
 
-    user.on("userdata", async(data) => {
-        console.log("Room : ", data.productId);
-        console.log("User : ", data.userId);
-        user.id = data.userId;
-        user.productId = data.productId;
+  user.on("userdata", async (data) => {
+    console.log("Room : ", data.productId);
+    console.log("User : ", data.userId);
+    user.id = data.userId;
+    user.productId = data.productId;
 
-        user.join(user.productId);
+    user.join(user.productId);
+  });
+
+  user.on("sendComment", async (data) => {
+    const productId = data.productId;
+
+    commentData = {
+      data: data.data,
+      timeStamp: data.timeStamp,
+      senderId: user.id,
+    };
+
+    console.log("comment Data :", commentData);
+
+    await Product_Model.findByIdAndUpdate(productId, {
+      $push: { comments: commentData },
+    }).catch((err) => {
+      console.log("error in uploading comment");
     });
 
-    user.on("sendComment", async(data) => {
-        const productId = data.productId;
+    const updatedData = {
+      timeStamp: commentData.timeStamp,
+      data: commentData.data,
+      senderId: {
+        name: await getUserName(user.id),
+      },
+      productId: user.productId,
+    };
 
-        commentData = {
-            data: data.data,
-            timeStamp: data.timeStamp,
-            senderId: user.id,
-        };
+    console.log("updatedData: ", updatedData);
 
-        console.log("comment Data :", commentData);
+    io.emit("receiveComment", updatedData);
+    console.log("done");
+  });
 
-        await Product_Model.findByIdAndUpdate(productId, {
-            $push: { comments: commentData },
-        }).catch((err) => {
-            console.log("error in uploading comment");
-        });
+  user.on("makeBid", async (data) => {
+    const productId = data.productId;
 
-        const updatedData = {
-            timeStamp: commentData.timeStamp,
-            data: commentData.data,
-            senderId: {
-                name: await getUserName(user.id),
-            },
-            productId: user.productId,
-        };
+    bidData = {
+      bidAmount: data.amount,
+      timeStamp: data.timeStamp,
+      bidderId: user.id,
+    };
 
-        console.log("updatedData: ", updatedData);
+    console.log("bid Data :", bidData);
 
-        io.emit("receiveComment", updatedData);
-        console.log("done");
+    await Product_Model.findByIdAndUpdate(productId, {
+      $push: { bidDetails: bidData },
+      maxBid: bidData.bidAmount,
+    }).catch((err) => {
+      console.log("error while updating bid");
     });
 
-    user.on("makeBid", async(data) => {
-        const productId = data.productId;
+    const updatedData = {
+      timeStamp: bidData.timeStamp,
+      amount: bidData.bidAmount,
+      bidderId: {
+        name: await getUserName(user.id),
+      },
+      productId: user.productId,
+    };
 
-        bidData = {
-            bidAmount: data.amount,
-            timeStamp: data.timeStamp,
-            bidderId: user.id,
-        };
+    console.log("updated Bid Data: ", updatedData);
 
-        console.log("bid Data :", bidData);
-
-        await Product_Model.findByIdAndUpdate(productId, {
-            $push: { bidDetails: bidData },
-            maxBid: bidData.bidAmount,
-        }).catch((err) => {
-            console.log("error while updating bid");
-        });
-
-        const updatedData = {
-            timeStamp: bidData.timeStamp,
-            amount: bidData.bidAmount,
-            bidderId: {
-                name: await getUserName(user.id),
-            },
-            productId: user.productId,
-        };
-
-        console.log("updated Bid Data: ", updatedData);
-
-        io.emit("receiveBid", updatedData);
-        console.log("done");
-    });
+    io.emit("receiveBid", updatedData);
+    console.log("done");
+  });
 });
 
 app.use(routes);
 
 server.listen(PORT, () => {
-    console.log("Server is running on Port : ", PORT);
+  console.log("Server is running on Port : ", PORT);
 });

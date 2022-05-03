@@ -164,29 +164,29 @@ router.get("/login", auth, (req, res) => {
 });
 
 //login
-router.post("/login", async(req, res) => {
-    console.log("login page");
-    try {
-        const user = await User.findOne({ email: req.body.email });
-        if (!user) {
-            return res.send("Invalid user");
-        }
-        const isValidPass = await bcrypt.compare(req.body.password, user.password);
-        if (isValidPass) {
-            const token = await user.generateAuthToken();
-            res.cookie("token", token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-            });
-            res.status(200).send({ user });
-        } else {
-            res.send({ err: "Invalid email or password" });
-        }
-    } catch (err) {
-        console.log("Error while login", err);
-        res.send({ message: "Error while login", err });
+router.post("/login", async (req, res) => {
+  console.log("login api", req.body);
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.send({ message: "user not found", isValid: false });
     }
+    const isValidPass = await bcrypt.compare(req.body.password, user.password);
+    if (isValidPass) {
+      const token = await user.generateAuthToken();
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.status(200).send({ message: "valid", user, isValid: true });
+    } else {
+      res.send({ message: "Invalid email or password", isValid: false });
+    }
+  } catch (err) {
+    console.log("Error while login", err);
+    res.send({ message: "Error while login", isValid: false });
+  }
 });
 
 router.get("/logout", (req, res) => {
@@ -198,6 +198,7 @@ router.get("/logout", (req, res) => {
 
 // register
 router.post("/register", async(req, res) => {
+    console.log("register user");
     try {
         req.body.password = await bcrypt.hash(req.body.password, 8);
         const user = new User(req.body);
@@ -208,10 +209,11 @@ router.post("/register", async(req, res) => {
             secure: true,
             sameSite: "none",
         });
-        res.status(201).send({ user });
+        res.status(200).send({ message: "user registered", user, isRegistered: true });
         // const user = await User.create(req.body)
     } catch (error) {
-        res.status(404).send({ msg: "error in create user", error });
+        console.log(error);
+        res.send({ message: "Error while registering", isRegistered: false });
     }
 });
 
