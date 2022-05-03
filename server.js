@@ -30,19 +30,34 @@ app.use(cookieParser());
 // app.use(express.static(path));
 app.use(express.json());
 
-// cron.schedule("0 0 * * * *", async function() {
-//     await Product_Model.find({startDate:})
-// });
+cron.schedule("35 20 * * *", async function() {
+    var currentDate = new Date();
+    try {
+      await Product_Model.updateMany(
+        {startDate:{$lte:currentDate}},
+        {$set:{status:"live"}}
+      )
+      await Product_Model.updateMany(
+        {endDate:{$lte:currentDate}},
+        {$set:{status:"completed"}}
+      )
+      // await Product_Model.updateMany(
+      //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
+      //   {$set:{status:"live"}}
+      // )
 
-const comparedate = async () => {
-  product = await Product_Model.find();
-  var d1 = new Date();
-  var d2 = product[0].startDate;
-  console.log(d1, d2);
-  console.log(d1.getTime() > d2.getTime());
-};
+      await Product_Model.find({endDate:{$lte:currentDate},buyerId:{$eq:null}})
+      .then((products)=>{
+        console.log(products);
+      })
 
-comparedate();
+
+      console.log("done cron");
+    } catch (error) {
+      console.log(error);
+    } 
+});
+
 
 io.on("connection", (user) => {
   console.log("new user connected");
