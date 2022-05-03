@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const Product_Model = require("./model/product");
 const routes = require("./route");
 const getUserName = require("./modules/api/utils/queries");
-const path = require("./images");
+// const path = require("./images");
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
