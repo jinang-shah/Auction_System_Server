@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-
 const schema = mongoose.Schema;
 
 const User = new schema(
@@ -28,22 +27,28 @@ const User = new schema(
       // select: false,
     },
     address: {
-      type: {},
-      required: true,
+      type: String,
     },
-    documents: [
-      {
-        aadharcard: {
-          type: String,
-        },
-        pancard: {
-          type: String,
-        },
-        elecard: {
-          type: String,
-        },
+    city: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    postalCode: {
+      type: Number,
+    },
+    documents: {
+      aadharcard: {
+        type: String,
       },
-    ],
+      pancard: {
+        type: String,
+      },
+      elecard: {
+        type: String,
+      },
+    },
     productBill: {
       type: String,
     },

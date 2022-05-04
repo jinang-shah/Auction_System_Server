@@ -137,11 +137,9 @@ router.post(
   async (req, res) => {
     try {
       const user = await User.findById(req.user.id);
-      const obj = {
-        pancard: req.files.pancard.map((x) => x.path).toString(),
-        elecard: req.files.elecard.map((x) => x.path).toString(),
-      };
-      user.documents.push(obj);
+      user.documents.pancard = req.files.pancard.map((x) => x.path).toString();
+      user.documents.elecard = req.files.elecard.map((x) => x.path).toString();
+
       await user.save();
       res.send({ msg: "Documents Uploaded" });
     } catch (error) {
@@ -202,11 +200,11 @@ router.get("/logout", (req, res) => {
 });
 
 // register
-router.post("/register", async (req, res) => {
-  console.log("register user", req.body);
+router.post("/register", upload.single("aadharcard"), async (req, res) => {
   try {
     req.body.password = await bcrypt.hash(req.body.password, 8);
     const user = new User(req.body);
+    user.documents.aadharcard = req.file.path;
     await user.save();
     const token = await user.generateAuthToken();
     res.cookie("token", token, {
