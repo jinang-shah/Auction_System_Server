@@ -202,7 +202,6 @@ router.get("/logout", (req, res) => {
 // register
 router.post("/register", upload.single("aadharcard"), async (req, res) => {
   try {
-    req.body.password = await bcrypt.hash(req.body.password, 8);
     const user = new User(req.body);
     user.documents.aadharcard = req.file.path;
     await user.save();
