@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const Product_Model = require("./model/product");
 const routes = require("./route");
 const getUserName = require("./modules/api/utils/queries");
-const path = require("./images");
+// const path = require("./images");
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -23,11 +23,10 @@ mongoose
   })
   .catch((err) => {
     console.log("error in connecting to MongoDb");
-  });
-
+  })
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
-app.use(express.static(path));
+// app.use(express.static(path));
 app.use(express.json());
 
 // cron.schedule("0 0 * * * *", async function() {
