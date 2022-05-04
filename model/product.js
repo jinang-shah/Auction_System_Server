@@ -28,7 +28,6 @@ let Product = new schema({
   },
   bill:{
     type :[],
-    required:true
   },
   startDate: {
     type: Date,
@@ -45,7 +44,8 @@ let Product = new schema({
   },
   buyerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"User"
+    ref:"User",
+    default:null
   },
   isVerified: {
     type: Boolean,

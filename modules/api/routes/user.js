@@ -200,7 +200,6 @@ router.get("/logout", (req, res) => {
 router.post("/register", async(req, res) => {
     console.log("register user");
     try {
-        req.body.password = await bcrypt.hash(req.body.password, 8);
         const user = new User(req.body);
         await user.save();
         const token = await user.generateAuthToken();

@@ -30,8 +30,10 @@ app.use(cookieParser());
 // app.use(express.static(path));
 app.use(express.json());
 
-cron.schedule("35 20 * * *", async function() {
+cron.schedule("38 18 * * *", async function() {
     var currentDate = new Date();
+    var prevDayDate = new Date();
+    prevDayDate.setDate(prevDayDate.getDate() - 1);
     try {
       await Product_Model.updateMany(
         {startDate:{$lte:currentDate}},
@@ -45,8 +47,9 @@ cron.schedule("35 20 * * *", async function() {
       //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
       //   {$set:{status:"live"}}
       // )
+      console.log(prevDayDate);
 
-      await Product_Model.find({endDate:{$lte:currentDate},buyerId:{$eq:null}})
+      await Product_Model.find({endDate:{$eq:prevDayDate},buyerId:{$eq:null}})
       .then((products)=>{
         console.log(products);
       })
