@@ -198,37 +198,36 @@ router.get("/logout", (req, res) => {
 // register
 router.post("/register", upload.single("aadharcard"), async (req, res) => {
   try {
-    req.body.password = await bcrypt.hash(req.body.password, 8);
     const user = new User(req.body);
     user.documents.aadharcard = req.file.path;
     await user.save();
     const token = await user.generateAuthToken();
-  res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-        });
-        res.status(200).send({ message: "user registered", user, isRegistered: true });
-        // const user = await User.create(req.body)
-    } catch (error) {
-        console.log(error);
-        res.send({ message: "Error while registering", isRegistered: false });
-    }
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res
+      .status(200)
+      .send({ message: "user registered", user, isRegistered: true });
+    // const user = await User.create(req.body)
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Error while registering", isRegistered: false });
+  }
 });
 
 //update user details
-router.patch("/edit/:id", auth, async (req, res) => {
-  await User.findByIdAndUpdate(req.params.id, req.body, {
+router.patch("/edit/", auth, async (req, res) => {
+  await User.findByIdAndUpdate(req.user.id, req.body, {
     new: true,
     runValidators: true,
   })
     .then((data) => {
-      console.log(data);
-      res.status(202).send(data);
+      res.status(202).send({ message: "Update done successfully" });
     })
     .catch((err) => {
-      console.log("error while updating user details", err);
-      res.status(404).send("error while updating user details");
+      res.status(404).send({ message: "error while updating user details" });
     });
 });
 
