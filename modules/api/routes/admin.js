@@ -48,7 +48,7 @@ router.get("/users", async (req, res) => {
 router.delete("/user/:id", async (req, res) => {
   try {
     console.log("delete id", req.params.id);
-    await User.findOneAndRemove(req.params.id).then((data) => {
+    await User.findByIdAndRemove(req.params.id).then((data) => {
       res.send(data);
       console.log(data);
     });
