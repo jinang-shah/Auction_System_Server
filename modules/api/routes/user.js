@@ -174,7 +174,10 @@ router.post("/login", async (req, res) => {
     if (!user) {
       return res.send({ message: "user not found", isValid: false });
     }
+    console.log("pass",req.body.password);
+    console.log("user",user.password);
     const isValidPass = await bcrypt.compare(req.body.password, user.password);
+    console.log(isValidPass);
     if (isValidPass) {
       const token = await user.generateAuthToken();
       res.cookie("token", token, {
