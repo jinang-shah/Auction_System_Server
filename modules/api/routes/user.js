@@ -8,159 +8,164 @@ const auth = require("../middleware/auth_middleware");
 const gethistory = require("../../../helper/gethistory");
 const multer = require("multer");
 const favourite = require("./favourite");
+const {
+  deleteNotifications,
+  viewedNotification,
+} = require("../utils/notification");
 
 router.use(favourite);
 
 //change password
-router.post("/change-password/:id", auth, async(req, res) => {
-    const passwordDetails = req.body;
-    const user = req.user;
-    console.log(user);
-    console.log(passwordDetails);
-    const isValidPass = await bcrypt.compare(
-        passwordDetails.oldPassword,
-        user.password
-    );
-    console.log(isValidPass);
-    if (isValidPass) {
-        user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
+router.post("/change-password/:id", auth, async (req, res) => {
+  const passwordDetails = req.body;
+  const user = req.user;
+  console.log(user);
+  console.log(passwordDetails);
+  const isValidPass = await bcrypt.compare(
+    passwordDetails.oldPassword,
+    user.password
+  );
+  console.log(isValidPass);
+  if (isValidPass) {
+    user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
 
-        await user.save();
-        res.status(200).send();
-        console.log("Password change sucessfully");
-    } else {}
+    await user.save();
+    res.status(200).send();
+    console.log("Password change sucessfully");
+  } else {
+  }
 });
 
 //reset password
 
-router.post("/reset-password/:resetToken", async(req, res, next) => {
-    try {
-        console.log(req.params.resetToken);
-        const resetPasswordToken = crypto
-            .createHash("sha256")
-            .update(req.params.resetToken)
-            .digest("hex");
+router.post("/reset-password/:resetToken", async (req, res, next) => {
+  try {
+    console.log(req.params.resetToken);
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.resetToken)
+      .digest("hex");
 
-        const user = await User.findOne({
-            resetPasswordToken,
-            resetPasswordExpire: { $gt: Date.now() },
-        });
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
 
-        if (!user) {
-            return next(new Error("Invalid reset Token", 400));
-        }
-
-        user.password = req.body.password;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-        //console.log(user)
-        await user.save();
-
-        res.status(201).json({
-            success: true,
-            data: "password reset success",
-        });
-    } catch (error) {
-        next(error);
+    if (!user) {
+      return next(new Error("Invalid reset Token", 400));
     }
+
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    //console.log(user)
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      data: "password reset success",
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 //forgot password
-router.post("/forgot-password", async(req, res, next) => {
-    const { email } = req.body;
-    console.log({ email });
+router.post("/forgot-password", async (req, res, next) => {
+  const { email } = req.body;
+  console.log({ email });
 
-    try {
-        const user = await User.findOne({ email });
-        // console.log(user);
+  try {
+    const user = await User.findOne({ email });
+    // console.log(user);
 
-        if (!user) {
-            return next(new Error("Email could not be sent, no user", 404));
-        }
+    if (!user) {
+      return next(new Error("Email could not be sent, no user", 404));
+    }
 
-        const resetToken = user.getResetPasswordToken();
-        console.log(resetToken);
-        await user.save();
+    const resetToken = user.getResetPasswordToken();
+    console.log(resetToken);
+    await user.save();
 
-        const resetUrl = `http://localhost:4200/#/reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:4200/#/reset-password/${resetToken}`;
 
-        const message = `
+    const message = `
         <h1>You have requested a password reset</h1>
         <p>please go to this link to reset your password</p>
         <a href = ${resetUrl} clicktracking=off>${resetUrl}</a>
       `;
 
-        try {
-            await sendEmail({
-                to: user.email,
-                subject: "password reset request",
-                text: message,
-            });
-            res.status(200).json(resetToken);
-        } catch (error) {
-            user.resetpasswordToken = undefined;
-            user.resetpasswordExpire = undefined;
-
-            await user.save();
-
-            return next(new ErrorResponse("Email could not be sent !", 500));
-        }
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "password reset request",
+        text: message,
+      });
+      res.status(200).json(resetToken);
     } catch (error) {
-        next(error);
+      user.resetpasswordToken = undefined;
+      user.resetpasswordExpire = undefined;
+
+      await user.save();
+
+      return next(new ErrorResponse("Email could not be sent !", 500));
     }
+  } catch (error) {
+    next(error);
+  }
 });
 
 // seller verification
 const fileStorageEngine = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "documents/");
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "--" + file.originalname);
-    },
+  destination: (req, file, cb) => {
+    cb(null, "documents/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "--" + file.originalname);
+  },
 });
 
 const upload = multer({ storage: fileStorageEngine });
 
 router.post(
-    "/sellerverification",
-    auth,
-    upload.fields([
-        { name: "pancard", maxCount: 1 },
-        { name: "elecard", maxCount: 1 },
-    ]),
-    async(req, res) => {
-        try {
-            const user = await User.findById(req.user.id);
-            const obj = {
-                pancard: req.files.pancard.map((x) => x.path).toString(),
-                elecard: req.files.elecard.map((x) => x.path).toString(),
-            };
-            user.documents.push(obj);
-            await user.save();
-            res.send({ msg: "Documents Uploaded" });
-        } catch (error) {
-            res.status(404).send({ msg: "error in uploading Documents", error });
-        }
+  "/sellerverification",
+  auth,
+  upload.fields([
+    { name: "pancard", maxCount: 1 },
+    { name: "elecard", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      const obj = {
+        pancard: req.files.pancard.map((x) => x.path).toString(),
+        elecard: req.files.elecard.map((x) => x.path).toString(),
+      };
+      user.documents.push(obj);
+      await user.save();
+      res.send({ msg: "Documents Uploaded" });
+    } catch (error) {
+      res.status(404).send({ msg: "error in uploading Documents", error });
     }
+  }
 );
 
 //fetch all users
-router.get("/", auth, async(req, res) => {
-    await User.find()
-        .then((data) => {
-            console.log(data);
-            res.status(200).send(data);
-        })
-        .catch((err) => {
-            res.send({ message: "error in fetching user", err });
-        });
+router.get("/", auth, async (req, res) => {
+  await User.find()
+    .then((data) => {
+      console.log(data);
+      res.status(200).send(data);
+    })
+    .catch((err) => {
+      res.send({ message: "error in fetching user", err });
+    });
 });
 
 // auto login
 router.get("/login", auth, (req, res) => {
-    console.log("authorizedddd");
-    res.send(req.user);
+  console.log("authorizedddd");
+  res.send(req.user);
 });
 
 //login
@@ -190,94 +195,106 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-    res.clearCookie("token");
-    res.send({
-        msg: "loggedout",
-    });
+  res.clearCookie("token");
+  res.send({
+    msg: "loggedout",
+  });
 });
 
 // register
-router.post("/register", async(req, res) => {
-    console.log("register user");
-    try {
-        req.body.password = await bcrypt.hash(req.body.password, 8);
-        const user = new User(req.body);
-        await user.save();
-        const token = await user.generateAuthToken();
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-        });
-        res.status(200).send({ message: "user registered", user, isRegistered: true });
-        // const user = await User.create(req.body)
-    } catch (error) {
-        console.log(error);
-        res.send({ message: "Error while registering", isRegistered: false });
-    }
+router.post("/register", async (req, res) => {
+  console.log("register user", req.body);
+  try {
+    req.body.password = await bcrypt.hash(req.body.password, 8);
+    const user = new User(req.body);
+    await user.save();
+    const token = await user.generateAuthToken();
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res
+      .status(200)
+      .send({ message: "user registered", user, isRegistered: true });
+    // const user = await User.create(req.body)
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Error while registering", isRegistered: false });
+  }
 });
 
 //update user details
-router.patch("/edit/:id", auth, async(req, res) => {
-    await User.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        })
-        .then((data) => {
-            console.log(data);
-            res.status(202).send(data);
-        })
-        .catch((err) => {
-            console.log("error while updating user details", err);
-            res.status(404).send("error while updating user details");
-        });
+router.patch("/edit/:id", auth, async (req, res) => {
+  await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  })
+    .then((data) => {
+      console.log(data);
+      res.status(202).send(data);
+    })
+    .catch((err) => {
+      console.log("error while updating user details", err);
+      res.status(404).send("error while updating user details");
+    });
 });
 
-// todo: add authmiddleware
-router.get("/notifications", auth, async(req, res) => {
-    const user = req.user;
-    await user.populate("notifications.productId");
-    res.status(200).send({ type: "success", data: user.notifications });
+// get all notifications
+router.get("/notifications", auth, async (req, res) => {
+  const user = req.user;
+  await user.populate("notifications.productId");
+  res.status(200).send({ type: "success", data: user.notifications });
 });
 
-router.delete("/notification/:id", auth, (req, res) => {
-    console.log(req.user);
+// set view true to all seen notifications
+router.get("/notifications/view", auth, async (req, res) => {
+  let user = req.user;
+  user.notifications = viewedNotification(user.notifications);
+  await req.user.save();
+  res.send({ msg: "done" });
+});
 
-    res.status(200).send({ msg: "Notification Deleted" });
+// delete notification by id and also delete previous notification of that product.
+router.delete("/notification/:id", auth, async (req, res) => {
+  let user = req.user;
+  user.notifications = deleteNotifications(user.notifications, req.params.id);
+  await user.save();
+  res.status(200).send({ msg: "Notification Deleted" });
 });
 
 // fetch user buying history
 router.get(
-    "/buyinghistory",
-    auth,
-    (req, res, next) => {
-        req.historyType = "buyHistory";
-        next();
-    },
-    gethistory
+  "/buyinghistory",
+  auth,
+  (req, res, next) => {
+    req.historyType = "buyHistory";
+    next();
+  },
+  gethistory
 );
 
 // fetch user selling history
 router.get(
-    "/sellinghistory",
-    auth,
-    (req, res, next) => {
-        req.historyType = "sellHistory";
-        next();
-    },
-    gethistory
+  "/sellinghistory",
+  auth,
+  (req, res, next) => {
+    req.historyType = "sellHistory";
+    next();
+  },
+  gethistory
 );
 
 //fetch user by id
-router.get("/:id", async(req, res) => {
-    await User.findById(req.params.id)
-        .then((data) => {
-            console.log(data);
-            res.status(200).send(data);
-        })
-        .catch((err) => {
-            res.status(404).send({ err: "error in getting user by id" });
-        });
+router.get("/:id", async (req, res) => {
+  await User.findById(req.params.id)
+    .then((data) => {
+      console.log(data);
+      res.status(200).send(data);
+    })
+    .catch((err) => {
+      res.status(404).send({ err: "error in getting user by id" });
+    });
 });
 
 module.exports = router;
