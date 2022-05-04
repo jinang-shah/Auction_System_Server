@@ -27,7 +27,7 @@ mongoose
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
-// app.use(express.static(path));
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"));
 app.use(express.json());
 
 // cron.schedule("0 0 * * * *", async function() {
