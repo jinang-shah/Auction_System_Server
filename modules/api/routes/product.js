@@ -45,7 +45,8 @@ router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("comments.senderId")
-      .populate("bidDetails.bidderId");
+      .populate("bidDetails.bidderId")
+      .populate("sellerId");
     res.send(product);
   } catch (error) {
     console.log(error);
@@ -65,13 +66,10 @@ const fileStorageEngine = multer.diskStorage({
 
 const upload = multer({ storage: fileStorageEngine });
 
-router.post(
-  "/additem",
-  upload.fields([
+router.post("/additem",upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
-  ]),
-  (req, res) => {
+  ]),(req, res) => {
     console.log(req.files);
     req.body.bill = req.files.bill.map((x) => x.path);
     req.body.images = req.files.images.map((x) => x.path);

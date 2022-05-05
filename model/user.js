@@ -41,12 +41,15 @@ const User = new schema(
     documents: {
       aadharcard: {
         type: String,
+        default: null,
       },
       pancard: {
         type: String,
+        default: null,
       },
       elecard: {
         type: String,
+        default: null,
       },
     },
     productBill: {

@@ -26,6 +26,7 @@ mongoose
   })
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"));
 // app.use(
 //   express.static(
 //     "/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"
@@ -40,19 +41,37 @@ app.use(express.static("/home/yash/Auction_System_Server/documents/"));
 // app.use(express.static(path));
 app.use(express.json());
 
-// cron.schedule("0 0 * * * *", async function() {
-//     await Product_Model.find({startDate:})
-// });
+cron.schedule("38 18 * * *", async function() {
+    var currentDate = new Date();
+    var prevDayDate = new Date();
+    prevDayDate.setDate(prevDayDate.getDate() - 1);
+    try {
+      await Product_Model.updateMany(
+        {startDate:{$lte:currentDate}},
+        {$set:{status:"live"}}
+      )
+      await Product_Model.updateMany(
+        {endDate:{$lte:currentDate}},
+        {$set:{status:"completed"}}
+      )
+      // await Product_Model.updateMany(
+      //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
+      //   {$set:{status:"live"}}
+      // )
+      console.log(prevDayDate);
 
-const comparedate = async () => {
-  product = await Product_Model.find();
-  var d1 = new Date();
-  var d2 = product[0].startDate;
-  console.log(d1, d2);
-  console.log(d1.getTime() > d2.getTime());
-};
+      await Product_Model.find({endDate:{$eq:prevDayDate},buyerId:{$eq:null}})
+      .then((products)=>{
+        console.log(products);
+      })
 
-comparedate();
+
+      console.log("done cron");
+    } catch (error) {
+      console.log(error);
+    } 
+});
+
 
 io.on("connection", (user) => {
   console.log("new user connected");
