@@ -19,6 +19,10 @@ router.post("/favourite/:productId", auth, async (req, res) => {
   let index = req.user.favouriteProducts.indexOf(pId);
   if (index == -1) {
     req.user.favouriteProducts.push(pId);
+
+    // for notification
+    let when = req.body.when;
+    req.user.notifications.push({ productId: pId, when });
     await req.user.save();
     res.send({ msg: "added" });
   } else {
@@ -34,6 +38,9 @@ router.delete("/favourite/:productId", auth, async (req, res) => {
       msg: "Product ID not found",
     });
   }
+  req.user.notifications = req.user.notifications.filter(
+    (n) => n.productId != pId
+  );
   req.user.favouriteProducts = req.user.favouriteProducts.filter(
     (id) => pId !== id.toString()
   );

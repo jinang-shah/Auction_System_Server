@@ -3,14 +3,14 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
+const cron = require("node-cron");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-const Product = require("./modules/api/routes/product");
 const Product_Model = require("./model/product");
-const Users = require("./modules/api/routes/user");
 const routes = require("./route");
 const getUserName = require("./modules/api/utils/queries");
+// const path = require("./images");
 require("dotenv").config();
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -27,12 +27,52 @@ mongoose
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
-app.use(
-  express.static(
-    "/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"
-  )
-);
+app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"));
+// app.use(
+//   express.static(
+//     "/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"
+//   )
+// );
+app.use(express.static("/home/yash/Auction_System_Server/documents/"));
+// app.use(
+//     express.static(
+//         path
+//     )
+// );
+// app.use(express.static(path));
 app.use(express.json());
+
+cron.schedule("38 18 * * *", async function() {
+    var currentDate = new Date();
+    var prevDayDate = new Date();
+    prevDayDate.setDate(prevDayDate.getDate() - 1);
+    try {
+      await Product_Model.updateMany(
+        {startDate:{$lte:currentDate}},
+        {$set:{status:"live"}}
+      )
+      await Product_Model.updateMany(
+        {endDate:{$lte:currentDate}},
+        {$set:{status:"completed"}}
+      )
+      // await Product_Model.updateMany(
+      //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
+      //   {$set:{status:"live"}}
+      // )
+      console.log(prevDayDate);
+
+      await Product_Model.find({endDate:{$eq:prevDayDate},buyerId:{$eq:null}})
+      .then((products)=>{
+        console.log(products);
+      })
+
+
+      console.log("done cron");
+    } catch (error) {
+      console.log(error);
+    } 
+});
+
 
 io.on("connection", (user) => {
   console.log("new user connected");

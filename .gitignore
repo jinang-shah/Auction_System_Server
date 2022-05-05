@@ -1,9 +1,10 @@
-
 node_modules/
 node_modules
 ./node_modules
 .env
 *.envnode_modules/
+package-lock.json
 
 package-lock.json/
 package-lock.json
+.Vscode

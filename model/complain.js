@@ -5,11 +5,11 @@ let schema = mongoose.Schema;
 let Complain = new schema({
   buyerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
+    ref: "User",
   },
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
+    ref: "User",
   },
   complainDetails: {
     type: String,
@@ -26,6 +26,10 @@ let Complain = new schema({
   date: {
     type: Date,
     default: Date.now,
+  },
+  isSolved: {
+    type: Boolean,
+    default: false,
   },
 });
 

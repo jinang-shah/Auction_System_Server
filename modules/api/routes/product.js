@@ -27,7 +27,6 @@ router.get("/", async (req, res) => {
     const parts = req.query.sortBy.split(":");
     sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
   }
-
   try {
     const products = await Product.find(findObj)
       .sort(sort)
@@ -45,7 +44,8 @@ router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("comments.senderId")
-      .populate("bidDetails.bidderId");
+      .populate("bidDetails.bidderId")
+      .populate("sellerId");
     res.send(product);
   } catch (error) {
     console.log(error);
@@ -65,13 +65,10 @@ const fileStorageEngine = multer.diskStorage({
 
 const upload = multer({ storage: fileStorageEngine });
 
-router.post(
-  "/additem",
-  upload.fields([
+router.post("/additem",upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
-  ]),
-  (req, res) => {
+  ]),(req, res) => {
     console.log(req.files);
     req.body.bill = req.files.bill.map((x) => x.path);
     req.body.images = req.files.images.map((x) => x.path);
@@ -107,5 +104,17 @@ router.post(
     });
   }
 );
+
+// get product by id
+router.get("/:id", (req, res) => {
+  Product.findById(req.params.id, (error, data) => {
+    if (error) {
+      console.log("product by id :", error);
+      res.send("Error in getting product by id");
+    } else {
+      res.json(data);
+    }
+  });
+});
 
 module.exports = router;
