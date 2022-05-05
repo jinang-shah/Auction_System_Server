@@ -4,8 +4,19 @@ const auth = require("../middleware/auth_middleware");
 
 // get all favourite products
 router.get("/favourite", auth, async (req, res) => {
+  let count = req.user.favouriteProducts.length;
+  let itemsPerPage = parseInt(req.query.itemsPerPage) || 5;
+  let skip = (parseInt(req.query.pageNo) - 1 || 0) * itemsPerPage;
+  console.log(skip, skip + itemsPerPage);
+  req.user.favouriteProducts = req.user.favouriteProducts.slice(
+    skip,
+    skip + itemsPerPage
+  );
   await req.user.populate("favouriteProducts");
-  res.send(req.user.favouriteProducts);
+  res.send({
+    products: req.user.favouriteProducts,
+    totalPages: Math.ceil(count / itemsPerPage),
+  });
 });
 
 // add product to favourite

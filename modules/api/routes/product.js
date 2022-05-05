@@ -44,7 +44,8 @@ router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("comments.senderId")
-      .populate("bidDetails.bidderId");
+      .populate("bidDetails.bidderId")
+      .populate("sellerId");
     res.send(product);
   } catch (error) {
     console.log(error);

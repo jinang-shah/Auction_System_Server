@@ -202,7 +202,6 @@ router.get("/logout", (req, res) => {
   });
 });
 
-// register
 router.post("/register", upload.single("aadharcard"), async (req, res) => {
   try {
     const user = new User(req.body);
