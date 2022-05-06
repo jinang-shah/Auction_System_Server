@@ -42,7 +42,7 @@ app.use(express.static("/home/yash/Auction_System_Server/documents/"));
 // app.use(express.static(path));
 app.use(express.json());
 
-cron.schedule("38 18 * * *", async function() {
+cron.schedule("20 19 * * *", async function() {
     var currentDate = new Date();
     var prevDayDate = new Date();
     prevDayDate.setDate(prevDayDate.getDate() - 1);

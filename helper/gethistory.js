@@ -9,6 +9,8 @@ const gethistory = async (req, res) => {
       date: details.startDate,
       status: details.status,
       image: details.images[0],
+      id: details._id,
+      sellerId: details.sellerId,
     };
   });
   res.send(data);

@@ -65,7 +65,9 @@ const fileStorageEngine = multer.diskStorage({
 
 const upload = multer({ storage: fileStorageEngine });
 
-router.post("/additem",upload.fields([
+router.post(
+  "/additem",
+  upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
   ]), auth, async (req, res) => {
@@ -89,6 +91,7 @@ router.post("/additem",upload.fields([
   }
 );
 
+// To add complain
 router.post(
   "/complain",
   upload.fields([{ name: "images", maxCount: 1 }]),
