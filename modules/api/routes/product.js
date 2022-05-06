@@ -68,11 +68,14 @@ const upload = multer({ storage: fileStorageEngine });
 router.post("/additem",upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
-  ]),(req, res) => {
+  ]), auth, async (req, res) => {
     console.log(req.files);
     req.body.bill = req.files.bill.map((x) => x.path);
     req.body.images = req.files.images.map((x) => x.path);
     var emp = new Product(req.body); /////
+    const user = req.user
+    user.sellHistory.push(emp._id)
+    await user.save()
     emp.save((err, doc) => {
       if (!err) {
         res.send(doc);
