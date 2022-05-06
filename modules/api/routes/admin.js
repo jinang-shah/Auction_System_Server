@@ -56,10 +56,10 @@ router.get('/complainlist', async (req,res)=>{
         }
         const details = data.map((data) => {
             return {
-                name:data.buyerId.name,
-                date: data.date,
+                name:data.buyerId?.name,
+                date: data?.date,
                 id:data._id,
-                status:data.isSolved
+                status:data?.isSolved
             }
         })
         res.send(details)
