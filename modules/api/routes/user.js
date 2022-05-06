@@ -16,43 +16,62 @@ const {
 router.use(favourite);
 
 //change password
-router.post("/change-password/:id", auth, async (req, res) => {
-  const passwordDetails = req.body;
-  const user = req.user;
-  console.log(user);
-  console.log(passwordDetails);
-  const isValidPass = await bcrypt.compare(
-    passwordDetails.oldPassword,
-    user.password
-  );
-  console.log(isValidPass);
-  if (isValidPass) {
-    user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
+router.post("/change-password", auth, async(req, res) => {
+    console.log("hange pass");
+    const passwordDetails = req.body;
+    const user = req.user;
+    console.log(user);
+    console.log(passwordDetails);
+    const isValidPass = await bcrypt.compare(
+        passwordDetails.oldPassword,
+        user.password
+    );
+    console.log(isValidPass);
+    if (isValidPass) {
+        user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
 
-    await user.save();
-    res.status(200).send();
-    console.log("Password change sucessfully");
-  } else {
-  }
+        await user.save();
+        res.status(200).send({ message: "password changed successfully", isValid: true });
+    } else {
+        res.send({ message: "invalid old password", isValid: false })
+    }
 });
 
 //reset password
 
-router.post("/reset-password/:resetToken", async (req, res, next) => {
-  try {
-    console.log(req.params.resetToken);
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(req.params.resetToken)
-      .digest("hex");
+router.post("/reset-password/:resetToken", async(req, res, next) => {
+    try {
+        console.log(req.params.resetToken);
+        const resetPasswordToken = crypto
+            .createHash("sha256")
+            .update(req.params.resetToken)
+            .digest("hex");
 
-    const user = await User.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() },
+        });
 
-    if (!user) {
-      return next(new Error("Invalid reset Token", 400));
+        if (!user) {
+            //return next(new Error("Invalid reset Token", 400));
+            res.send({ message: "User not found", isValid: false })
+
+        }
+
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        //console.log(user)
+        await user.save();
+
+        res.status(201).json({
+            success: true,
+            data: "password reset success",
+        });
+        res.status(200).send({ message: "password changed successfully", isValid: true });
+
+    } catch (error) {
+        next(error);
     }
 
     user.password = req.body.password;
@@ -79,9 +98,11 @@ router.post("/forgot-password", async (req, res, next) => {
     const user = await User.findOne({ email });
     // console.log(user);
 
-    if (!user) {
-      return next(new Error("Email could not be sent, no user", 404));
-    }
+        if (!user) {
+            //return next(new Error("Email could not be sent, no user", 404));
+            res.send({ message: "Invalid Email! Please enter Valid Email", isValid: false })
+
+        }
 
     const resetToken = user.getResetPasswordToken();
     console.log(resetToken);
@@ -95,13 +116,24 @@ router.post("/forgot-password", async (req, res, next) => {
         <a href = ${resetUrl} clicktracking=off>${resetUrl}</a>
       `;
 
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: "password reset request",
-        text: message,
-      });
-      res.status(200).json(resetToken);
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: "password reset request",
+                text: message,
+            });
+            // res.status(200).json(resetToken);
+            res.send({ message: "Please Check your mail id and Reset your password", isValid: true, data: { resetToken } })
+        } catch (error) {
+            user.resetpasswordToken = undefined;
+            user.resetpasswordExpire = undefined;
+
+            await user.save();
+
+            // return next(new ErrorResponse("Email could not be sent! Please try again", 500));
+            res.send({ message: "Please check your connection", isValid: false })
+
+        }
     } catch (error) {
       user.resetpasswordToken = undefined;
       user.resetpasswordExpire = undefined;
@@ -167,32 +199,29 @@ router.get("/login", auth, (req, res) => {
 });
 
 //login
-router.post("/login", async (req, res) => {
-  console.log("login api", req.body);
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.send({ message: "user not found", isValid: false });
+router.post("/login", async(req, res) => {
+    console.log("login api", req.body);
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.send({ message: "user not found", isValid: false });
+        }
+        const isValidPass = await bcrypt.compare(req.body.password, user.password);
+        if (isValidPass) {
+            const token = await user.generateAuthToken();
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+            });
+            res.status(200).send({ message: "valid", user, isValid: true });
+        } else {
+            res.send({ message: "Invalid email or password", isValid: false });
+        }
+    } catch (err) {
+        console.log("Error while login", err);
+        res.send({ message: "Error while login", isValid: false });
     }
-    console.log("pass",req.body.password);
-    console.log("user",user.password);
-    const isValidPass = await bcrypt.compare(req.body.password, user.password);
-    console.log(isValidPass);
-    if (isValidPass) {
-      const token = await user.generateAuthToken();
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-      });
-      res.status(200).send({ message: "valid", user, isValid: true });
-    } else {
-      res.send({ message: "Invalid email or password", isValid: false });
-    }
-  } catch (err) {
-    console.log("Error while login", err);
-    res.send({ message: "Error while login", isValid: false });
-  }
 });
 
 router.get("/logout", (req, res) => {
