@@ -91,6 +91,46 @@ router.post(
   }
 );
 
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+var dt = new Date();
+var startDate = dt.setDate(dt.getDate() + 2);
+var endDate = dt.setDate(dt.getDate() + 10);
+
+//create new product
+router.post('/create-product', (req, res) => {
+    Product.create({
+        name: "Panasonic 90 cm (52 inches)",
+        description: "Display: A+ Grade Panel | IPE Technology | True Colour | Cinema Zoom | Slim Bezel | Cinema Mode",
+        category: "Electronics",
+        sellerId: "626df31d822702e304d12467",
+        basePrice: 300,
+        images: [
+          "https://m.media-amazon.com/images/I/71ftZH+DJML._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61g19u3wPaL._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61+fbhu7ieL._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61AHZa1lEgL._SL1500_.jpg"
+        ],
+        startDate: startDate,
+        endDate: endDate,
+
+    }, (error, data) => {
+        if (error) {
+            console.log("error in add product", error)
+            res.send({ error: "error in adding product" })
+        }
+        else {
+            console.log(data)
+            res.send(data);
+        }
+    })
+})
+
+
 // To add complain
 router.post(
   "/complain",
