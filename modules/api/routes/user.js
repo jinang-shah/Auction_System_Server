@@ -17,7 +17,6 @@ router.use(favourite);
 
 //change password
 router.post("/change-password", auth, async(req, res) => {
-    console.log("hange pass");
     const passwordDetails = req.body;
     const user = req.user;
     console.log(user);
