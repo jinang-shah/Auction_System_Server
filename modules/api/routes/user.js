@@ -16,7 +16,7 @@ const {
 router.use(favourite);
 
 //change password
-router.post("/change-password/:id", auth, async (req, res) => {
+router.post("/change-password", auth, async (req, res) => {
   const passwordDetails = req.body;
   const user = req.user;
   console.log(user);
@@ -27,10 +27,11 @@ router.post("/change-password/:id", auth, async (req, res) => {
   );
   console.log(isValidPass);
   if (isValidPass) {
-    user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
+    // user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
+    user.password = passwordDetails.newPassword;
 
     await user.save();
-    res.status(200).send();
+    res.status(200).send({ message: "valid", user, isValid: true });
     console.log("Password change sucessfully");
   } else {
   }
@@ -194,7 +195,7 @@ router.post("/login", async (req, res) => {
     res.send({ message: "Error while login", isValid: false });
   }
 });
-
+//$2a$10$O0lE7aMT0w94DQpioLEWze/MtiSRpZXHaz0V1iPotnald8qDJehp
 router.get("/logout", (req, res) => {
   res.clearCookie("token");
   res.send({
