@@ -26,13 +26,19 @@ mongoose
   })
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
-app.use(express.static("/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"));
+app.use(
+  express.static(
+    "/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"
+  )
+);
 // app.use(
 //   express.static(
 //     "/home/priyank/Tranning/angular/company_project/Auction_System_Server/images"
 //   )
 // );
 app.use(express.static("/home/yash/Auction_System_Server/documents/"));
+app.use(express.static("/home/yash/Auction_System_Server/"));
+
 // app.use(
 //     express.static(
 //         path
@@ -41,37 +47,37 @@ app.use(express.static("/home/yash/Auction_System_Server/documents/"));
 // app.use(express.static(path));
 app.use(express.json());
 
-cron.schedule("38 18 * * *", async function() {
-    var currentDate = new Date();
-    var prevDayDate = new Date();
-    prevDayDate.setDate(prevDayDate.getDate() - 1);
-    try {
-      await Product_Model.updateMany(
-        {startDate:{$lte:currentDate}},
-        {$set:{status:"live"}}
-      )
-      await Product_Model.updateMany(
-        {endDate:{$lte:currentDate}},
-        {$set:{status:"completed"}}
-      )
-      // await Product_Model.updateMany(
-      //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
-      //   {$set:{status:"live"}}
-      // )
-      console.log(prevDayDate);
+cron.schedule("20 19 * * *", async function () {
+  var currentDate = new Date();
+  var prevDayDate = new Date();
+  prevDayDate.setDate(prevDayDate.getDate() - 1);
+  try {
+    await Product_Model.updateMany(
+      { startDate: { $lte: currentDate } },
+      { $set: { status: "live" } }
+    );
+    await Product_Model.updateMany(
+      { endDate: { $lte: currentDate } },
+      { $set: { status: "completed" } }
+    );
+    // await Product_Model.updateMany(
+    //   {endDate:{buyerId:{$eq:null},$lt:currentDate}},
+    //   {$set:{status:"live"}}
+    // )
+    console.log(prevDayDate);
 
-      await Product_Model.find({endDate:{$eq:prevDayDate},buyerId:{$eq:null}})
-      .then((products)=>{
-        console.log(products);
-      })
+    await Product_Model.find({
+      endDate: { $eq: prevDayDate },
+      buyerId: { $eq: null },
+    }).then((products) => {
+      console.log(products);
+    });
 
-
-      console.log("done cron");
-    } catch (error) {
-      console.log(error);
-    } 
+    console.log("done cron");
+  } catch (error) {
+    console.log(error);
+  }
 });
-
 
 io.on("connection", (user) => {
   console.log("new user connected");

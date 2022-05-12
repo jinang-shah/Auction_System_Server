@@ -66,14 +66,21 @@ const fileStorageEngine = multer.diskStorage({
 
 const upload = multer({ storage: fileStorageEngine });
 
-router.post("/additem",upload.fields([
+router.post(
+  "/additem",
+  upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
-  ]),(req, res) => {
+  ]),
+  auth,
+  async (req, res) => {
     console.log(req.files);
     req.body.bill = req.files.bill.map((x) => x.path);
     req.body.images = req.files.images.map((x) => x.path);
     var emp = new Product(req.body); /////
+    const user = req.user;
+    user.sellHistory.push(emp._id);
+    await user.save();
     emp.save((err, doc) => {
       if (!err) {
         res.send(doc);
@@ -87,6 +94,47 @@ router.post("/additem",upload.fields([
   }
 );
 
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+var dt = new Date();
+var startDate = dt.setDate(dt.getDate() + 2);
+var endDate = dt.setDate(dt.getDate() + 10);
+
+//create new product
+router.post('/create-product', (req, res) => {
+    Product.create({
+        name: "Panasonic 90 cm (52 inches)",
+        description: "Display: A+ Grade Panel | IPE Technology | True Colour | Cinema Zoom | Slim Bezel | Cinema Mode",
+        category: "Electronics",
+        sellerId: "626df31d822702e304d12467",
+        basePrice: 300,
+        images: [
+          "https://m.media-amazon.com/images/I/71ftZH+DJML._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61g19u3wPaL._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61+fbhu7ieL._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/61AHZa1lEgL._SL1500_.jpg"
+        ],
+        startDate: startDate,
+        endDate: endDate,
+
+    }, (error, data) => {
+        if (error) {
+            console.log("error in add product", error)
+            res.send({ error: "error in adding product" })
+        }
+        else {
+            console.log(data)
+            res.send(data);
+        }
+    })
+})
+
+
+// To add complain
 router.post(
   "/complain",
   upload.fields([{ name: "images", maxCount: 1 }]),
