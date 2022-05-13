@@ -12,29 +12,33 @@ const {
     deleteNotifications,
     viewedNotification,
 } = require("../utils/notification");
+const { Console } = require("console");
 
 router.use(favourite);
 
 //change password
-router.post("/change-password", auth, async (req, res) => {
-  const passwordDetails = req.body;
-  const user = req.user;
-  console.log(user);
-  console.log(passwordDetails);
-  const isValidPass = await bcrypt.compare(
-    passwordDetails.oldPassword,
-    user.password
-  );
-  console.log(isValidPass);
-  if (isValidPass) {
-    // user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
-    user.password = passwordDetails.newPassword;
+router.post("/change-password", auth, async(req, res) => {
+    const passwordDetails = req.body;
+    const user = req.user;
+    console.log(user);
+    console.log(passwordDetails);
+    const isValidPass = await bcrypt.compare(
+        passwordDetails.oldPassword,
+        user.password
+    );
+    console.log(isValidPass);
+    if (isValidPass) {
+        // user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
+        user.password = passwordDetails.newPassword;
 
-    await user.save();
-    res.status(200).send({ message: "valid", user, isValid: true });
-    console.log("Password change sucessfully");
-  } else {
-  }
+        await user.save();
+        res.status(200).send({ message: "Password change sucessfully", user, isValid: true });
+        console.log("Password change sucessfully");
+    } else {
+        res.send({ message: "Please enter a valid Old Password", user, isValid: false });
+
+        console.log("Please enter a valid Password");
+    }
 });
 
 //reset password
@@ -64,11 +68,11 @@ router.post("/reset-password/:resetToken", async(req, res, next) => {
         //console.log(user)
         await user.save();
 
-        res.status(201).json({
-            success: true,
-            data: "password reset success",
-        });
-        res.status(200).send({ message: "password changed successfully", isValid: true });
+        // res.status(201).json({
+        //     success: true,
+        //     data: "password reset success",
+        // });
+        res.status(200).send({ message: "Password changed successfully", isValid: true });
 
     } catch (error) {
         next(error);
@@ -79,9 +83,9 @@ router.post("/reset-password/:resetToken", async(req, res, next) => {
 router.post("/forgot-password", async(req, res, next) => {
     const { email } = req.body;
     console.log({ email });
-
+    let user
     try {
-        const user = await User.findOne({ email });
+        user = await User.findOne({ email });
         // console.log(user);
 
         if (!user) {
@@ -121,12 +125,14 @@ router.post("/forgot-password", async(req, res, next) => {
 
         }
     } catch (error) {
-        user.resetpasswordToken = undefined;
-        user.resetpasswordExpire = undefined;
+        // user.resetpasswordToken = undefined;
+        // user.resetpasswordExpire = undefined;
 
-        await user.save();
+        // await user.save();
 
-        return next(new ErrorResponse("Email could not be sent !", 500));
+        // return next(new ErrorResponse("Email could not be sent !", 500));
+        // res.send({ message: "Email could not be sent !", isValid: false })
+
     }
 });
 
