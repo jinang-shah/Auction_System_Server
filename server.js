@@ -23,8 +23,7 @@ mongoose
   })
   .catch((err) => {
     console.log("error in connecting to MongoDb");
-  });
-
+  })
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
 app.use(

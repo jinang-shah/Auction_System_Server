@@ -41,6 +41,7 @@ router.get("/", async (req, res) => {
 
 // get product by id
 router.get("/:id", async (req, res) => {
+  console.log("product page");
   try {
     const product = await Product.findById(req.params.id)
       .populate("comments.senderId")
