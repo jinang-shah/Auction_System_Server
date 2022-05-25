@@ -53,7 +53,7 @@ router.post("/change-password", auth, async(req, res) => {
     if (isValidPass) {
         // user.password = await bcrypt.hash(passwordDetails.newPassword, 8);
         user.password = passwordDetails.newPassword;
-
+            
         await user.save();
         res.status(200).send({ message: "Password change sucessfully", user, isValid: true });
         console.log("Password change sucessfully");
