@@ -41,6 +41,7 @@ router.get("/", async (req, res) => {
 
 // get product by id
 router.get("/:id", async (req, res) => {
+  console.log("product page");
   try {
     const product = await Product.findById(req.params.id)
       .populate("comments.senderId")
@@ -70,14 +71,16 @@ router.post(
   upload.fields([
     { name: "bill", maxCount: 1 },
     { name: "images", maxCount: 4 },
-  ]), auth, async (req, res) => {
+  ]),
+  auth,
+  async (req, res) => {
     console.log(req.files);
     req.body.bill = req.files.bill.map((x) => x.path);
     req.body.images = req.files.images.map((x) => x.path);
     var emp = new Product(req.body); /////
-    const user = req.user
-    user.sellHistory.push(emp._id)
-    await user.save()
+    const user = req.user;
+    user.sellHistory.push(emp._id);
+    await user.save();
     emp.save((err, doc) => {
       if (!err) {
         res.send(doc);
